@@ -1,0 +1,3 @@
+selenium
+dataclasses_json
+requests
