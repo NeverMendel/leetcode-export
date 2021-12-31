@@ -4,8 +4,8 @@
 
 ## DISCLAIMER
 
-All the problems hosted on leetcode.com are intellectual propriety of LeetCode, LLC. **DO NOT UPLOAD
-THE DESCRIPTION OF LEETCODE PROBLEMS ON GITHUB OR ON ANY OTHER WEBSITE** or you might receive ad DMCA Takedown notice.
+All the problems hosted on leetcode.com are intellectual propriety of LeetCode, LLC. **DO NOT UPLOAD THE DESCRIPTION OF
+LEETCODE PROBLEMS ON GITHUB OR ON ANY OTHER WEBSITE** or you might receive ad DMCA Takedown notice.
 
 Read [LeetCode Terms of Service here](https://leetcode.com/terms/).
 
@@ -13,15 +13,12 @@ To avoid committing the problem description on git, you can add `*.txt` to your 
 
 ## How it works
 
-This script uses `selenium` and LeetCode APIs to download all your LeetCode submitted solutions.
+This script uses LeetCode REST and GraphQL APIs to download all your LeetCode submitted solutions.
 
-Before running the script, make sure that python3, chrome and `chromedriver` are installed in your system.
+Before running the script, make sure that python3 is installed in your system.
 
-If you do not want to configure and install all the required dependencies, you can download the Docker image. For
-further instructions read the section [Docker Image here](#docker-image).
-
-`chromedriver` is used to get the cookies needed to download your LeetCode submissions. Alternatively, you can provide
-the cookies using the flag `--cookies` in the Python script.
+If you prefer, you can use the Docker image to download your submissions. For further instructions read the
+section [Docker Image here](#docker-image).
 
 ## How to use
 
@@ -45,6 +42,49 @@ Now you can download all your LeetCode submission in the current folder by execu
 
 ```bash
 docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
+```
+
+## App parameters
+
+The script accepts the following parameters:
+
+```bash
+usage: app.py [-h] [--username USERNAME] [--password PASSWORD]
+              [--folder FOLDER] [--cookies COOKIES] [-v] [-vv]
+
+Export LeetCode solutions
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --username USERNAME   LeetCode username
+  --password PASSWORD   LeetCode password
+  --folder FOLDER       Output folder
+  --cookies COOKIES     LeetCode cookies
+  -v, --verbose         Enable verbose logging details
+  -vv, --extra-verbose  Enable more verbose logging details
+```
+
+## Login
+
+There are two ways to login in your LeetCode account, by providing username and password or by passing the cookies as program argument.
+
+### Username and Password:
+
+To login using username and password, insert them when prompted or pass them as parameter when lunching the
+script, like in the following example:
+
+```bash
+python ./app.py --username {USERNAME} --password {PASSWORD}`
+```
+
+The former option is to be preferred as it will avoid storing your password in the command history.
+
+### Cookies
+
+To login using cookies, pass the string containing them as parameter when lunching the script, like in the following example:
+
+```bash
+python ./app.py --cookies {COOKIES}
 ```
 
 ## License
