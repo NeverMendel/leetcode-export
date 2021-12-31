@@ -66,12 +66,13 @@ optional arguments:
 
 ## Login
 
-There are two ways to login in your LeetCode account, by providing username and password or by passing the cookies as program argument.
+There are two ways to login in your LeetCode account, by providing username and password or by passing the cookies as
+program argument.
 
 ### Username and Password:
 
-To login using username and password, insert them when prompted or pass them as parameter when lunching the
-script, like in the following example:
+To login using username and password, insert them when prompted or pass them as parameter when lunching the script, like
+in the following example:
 
 ```bash
 python ./app.py --username {USERNAME} --password {PASSWORD}`
@@ -81,11 +82,18 @@ The former option is to be preferred as it will avoid storing your password in t
 
 ### Cookies
 
-To login using cookies, pass the string containing them as parameter when lunching the script, like in the following example:
+To login using cookies, pass the string containing them as parameter when lunching the script, like in the following
+example:
 
 ```bash
 python ./app.py --cookies {COOKIES}
 ```
+
+## Special mentions
+
+Thanks to [skygragon](https://github.com/skygragon) for
+developing [leetcode-cli](https://github.com/skygragon/leetcode-cli), which I used as documentation for LeetCode APIs.
+The license of leetcode-cli is available [here](https://github.com/skygragon/leetcode-cli/blob/master/LICENSE).
 
 ## License
 
