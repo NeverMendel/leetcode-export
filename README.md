@@ -4,8 +4,9 @@ Python script and Docker image to export your LeetCode solutions.
 
 ## DISCLAIMER
 
-All the problems hosted on leetcode.com are intellectual propriety of LeetCode, LLC. **DO NOT UPLOAD THE DESCRIPTION OF
-LEETCODE PROBLEMS ON GITHUB OR ON ANY OTHER WEBSITE** or you might receive ad DMCA Takedown notice.
+The problems hosted on leetcode.com are intellectual propriety of LeetCode LLC unless specified otherwise. **DO NOT
+UPLOAD THE DESCRIPTION OF LEETCODE PROBLEMS ON GITHUB OR ON ANY OTHER WEBSITE** or you might receive ad DMCA Takedown
+notice.
 
 Before using this script make read [LeetCode Terms of Service](https://leetcode.com/terms/).
 
