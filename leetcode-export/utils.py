@@ -21,7 +21,7 @@ FILE_EXTENSIONS = {
     "swift": 'swift'
 }
 
-SPECIAL_CHARACTERS_FILENAME = ['/', '\\', ':', '*', '?', '"', '"', '<', '>', ' ', '|']
+SPECIAL_CHARACTERS_FILENAME = ['/', '\\', ':', '*', '?', '"', '"', '<', '>', '|']
 
 
 def language_to_extension(language: str) -> str:

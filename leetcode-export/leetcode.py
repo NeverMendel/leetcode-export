@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from time import sleep
 from typing import Dict, List
 
@@ -6,6 +7,7 @@ import requests
 
 from leetcode_graphql import GRAPHQL_URL, question_detail_json, Problem
 from leetcode_rest import LOGIN_URL, SUBMISSIONS_API_URL, Submission, BASE_URL
+from utils import language_to_extension, remove_special_characters
 
 
 class LeetCode(object):
@@ -67,6 +69,14 @@ class LeetCode(object):
                 headers={'Cookie': self.cookies}).json()
             if 'submissions_dump' in response_json:
                 for submission_dict in response_json['submissions_dump']:
+                    submission_dict['runtime'] = submission_dict['runtime'].replace(' ', '')
+                    submission_dict['memory'] = submission_dict['memory'].replace(' ', '')
+                    submission_dict['date_formatted'] = datetime.fromtimestamp(submission_dict['timestamp']).strftime(
+                        '%Y-%m-%d %H.%M.%S')
+                    submission_dict['extension'] = language_to_extension(submission_dict['lang'])
+                    for key in submission_dict:
+                        if type(submission_dict[key]) == str and key != 'url' and key != 'code':
+                            submission_dict[key] = remove_special_characters(submission_dict[key])
                     submission = Submission.from_dict(submission_dict)
                     if submission.title_slug not in dictionary:
                         dictionary[submission.title_slug] = []

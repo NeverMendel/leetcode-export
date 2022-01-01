@@ -10,6 +10,7 @@ GRAPHQL_URL = 'https://leetcode.com/graphql'
 class Problem:
     questionId: int
     difficulty: str
+    stats: str
     title: str
     titleSlug: str
     content: str
@@ -25,6 +26,7 @@ def question_detail_json(slug):
             question(titleSlug: $titleSlug) {
                 questionId
                 difficulty
+                stats
                 title
                 titleSlug
                 content

@@ -24,3 +24,5 @@ class Submission:
     code: str
     compare_result: str
     title_slug: str
+    date_formatted: str
+    extension: str
