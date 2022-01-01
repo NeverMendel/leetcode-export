@@ -13,7 +13,7 @@ WORKDIR /usr/src/app
 # Create out folder
 RUN mkdir -p out
 
-# Install dependencies
-RUN pip3 install -r requirements.txt
+# Install leetcode-export
+python3 ./setup.py install
 
-ENTRYPOINT ["python3", "./main.py", "--folder", "out"]
+ENTRYPOINT ["leetcode-export", "--folder", "out"]
