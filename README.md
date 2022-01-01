@@ -49,10 +49,10 @@ docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
 The script accepts the following arguments:
 
 ```bash
-usage: app.py [-h] [--username USERNAME] [--password PASSWORD]
-              [--folder FOLDER] [--cookies COOKIES] [-v] [-vv]
-              [--problem-filename PROBLEM_FILENAME]
-              [--submission-filename SUBMISSION_FILENAME]
+usage: leetcode-export [-h] [--username USERNAME] [--password PASSWORD]
+                       [--folder FOLDER] [--cookies COOKIES] [-v] [-vv]
+                       [--problem-filename PROBLEM_FILENAME]
+                       [--submission-filename SUBMISSION_FILENAME]
 
 Export LeetCode solutions
 
@@ -84,7 +84,7 @@ To log in using username and password, insert them using the interactive menu (p
 lunching the script, like in the following example:
 
 ```bash
-python ./app.py --username {USERNAME} --password {PASSWORD}`
+python leetcode-export --username {USERNAME} --password {PASSWORD}`
 ```
 
 The former option is to be preferred as it will avoid storing your password in the command history.
@@ -95,7 +95,7 @@ To log in using cookies, pass the string containing them as arguments when lunch
 example:
 
 ```bash
-python ./app.py --cookies {COOKIES}
+python leetcode-export --cookies {COOKIES}
 ```
 
 ## Filename template arguments
@@ -106,7 +106,7 @@ To change the format of the problem description filename, you can provide a temp
 script.
 
 ```bash
-python ./app.py --problem-filename PROBLEM_FILENAME
+python leetcode-export --problem-filename PROBLEM_FILENAME
 ```
 
 The template can contain parameters that will later be replaced based on the LeetCode problem information. The available
@@ -127,7 +127,7 @@ Default problem description filename template: `${questionId} - ${titleSlug}.txt
 To change the format of the submission filename, you can provide a template as a string when lunching the script.
 
 ```bash
-python ./app.py --submission-filename SUBMISSION_FILENAME
+python leetcode-export --submission-filename SUBMISSION_FILENAME
 ```
 
 The template can contain parameters that will later be replaced based on your submission information. The available

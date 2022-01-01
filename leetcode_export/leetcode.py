@@ -5,9 +5,9 @@ from typing import Dict, List
 
 import requests
 
-from leetcode_graphql import GRAPHQL_URL, question_detail_json, Problem
-from leetcode_rest import LOGIN_URL, SUBMISSIONS_API_URL, Submission, BASE_URL
-from utils import language_to_extension, remove_special_characters
+from leetcode_export.leetcode_graphql import GRAPHQL_URL, question_detail_json, Problem
+from leetcode_export.leetcode_rest import LOGIN_URL, SUBMISSIONS_API_URL, Submission, BASE_URL
+from leetcode_export.utils import language_to_extension, remove_special_characters
 
 
 class LeetCode(object):

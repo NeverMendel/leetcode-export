@@ -6,8 +6,8 @@ import os
 from string import Template
 from typing import List, Dict
 
-from leetcode import LeetCode
-from leetcode_rest import Submission
+from leetcode_export.leetcode import LeetCode
+from leetcode_export.leetcode_rest import Submission
 
 PROBLEM_CONTENT_TEMPLATE = Template('''${questionId} - ${title}
 ${difficulty} - https://leetcode.com/problems/${titleSlug}/
@@ -35,7 +35,7 @@ def parse_args():
     return parser.parse_args()
 
 
-class App(object):
+def main():
     args = parse_args()
 
     # Set logging level based on program arguments
@@ -119,3 +119,7 @@ class App(object):
                 logging.info(f"{slug}/{sub_filename} already exists, skipping it")
 
         os.chdir("..")
+
+
+if __name__ == '__main__':
+    main()
