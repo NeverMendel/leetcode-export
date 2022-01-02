@@ -23,11 +23,11 @@ section [Docker Image here](#docker-image).
 
 ## How to use
 
-To use it locally you can either download it from pypi.org or you can clone this repository.
+To use `leetcode-export` you can either download it from pypi.org or you can clone this repository.
 
 ## Download from pypi.org
 
-Execute `pip install leetcode-export` to download it and install all the needed dependencies. You might need to use `pip3`
+Run `pip install leetcode-export` to download it and install all the needed dependencies. You might need to use `pip3`
 depending on the configuration of your system.
 
 ### Clone the repository
@@ -35,7 +35,7 @@ depending on the configuration of your system.
 Clone this repository:
 
 ```bash
-git clone https://github.com/NeverMendel/leetcode-exports
+git clone https://github.com/NeverMendel/leetcode-export
 ```
 
 Install all the needed dependencies:
@@ -95,11 +95,14 @@ optional arguments:
 
 ## Login
 
-To download your submissions you need to log in your LeetCode account by providing the cookies.
+To download your submissions you need to log in your LeetCode account by providing the cookies. To log in using cookies,
+you need to get them from a session where you are already logged in.
 
-To log in using cookies, you need to get them from a session where you are already logged in. Login in your LeetCode
-account in your browser, open the browser's Dev Tool, click on the Network tab and copy the cookie header that is sent
-when you visit any leetcode webpage.
+**Steps required**: 
+- Login in your LeetCode account in your browser
+- Open the browser's Dev Tool
+- Click on the Network tab
+- Copy the cookie header that can be found under Request Headers in any leetcode.com request.
 
 You can insert the cookie string that you have just copied in the interactive menu (recommended) or you can pass it as a
 program argument when lunching the script, like in the following example:
@@ -108,7 +111,7 @@ program argument when lunching the script, like in the following example:
 python leetcode-export --cookies {COOKIES}
 ```
 
-Using the interactive menu is to be preferred as it will avoid storing your cookies in the command history.
+Using the interactive menu is preferred as it will avoid storing your cookies in the command history.
 
 ## Filename template arguments
 
@@ -163,6 +166,7 @@ date_formatted: str
 extension: str
 ```
 
+
 Default submission filename
 template: `${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}`
 
@@ -174,4 +178,4 @@ The license of leetcode-cli is available [here](https://github.com/skygragon/lee
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[MIT License](LICENSE)

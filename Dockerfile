@@ -14,6 +14,6 @@ WORKDIR /usr/app
 RUN mkdir -p out
 
 # Install leetcode-export
-python3 ./setup.py install
+RUN python3 ./setup.py install
 
 ENTRYPOINT ["leetcode-export", "--folder", "out"]
