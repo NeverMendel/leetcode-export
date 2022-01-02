@@ -27,8 +27,8 @@ To use it locally you can either download it from pypi.org or you can clone this
 
 ## Download from pypi.org
 
-Execute `py install leetcode-export` to download it and install all the needed dependencies. You might need to use `py3`
-depending on how python is configured in your system.
+Execute `pip install leetcode-export` to download it and install all the needed dependencies. You might need to use `pip3`
+depending on the configuration of your system.
 
 ### Clone the repository
 
@@ -75,8 +75,7 @@ docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
 The script accepts the following arguments:
 
 ```
-usage: leetcode-export [-h] [--username USERNAME] [--password PASSWORD]
-                       [--folder FOLDER] [--cookies COOKIES] [-v] [-vv]
+usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER] [-v] [-vv]
                        [--problem-filename PROBLEM_FILENAME]
                        [--submission-filename SUBMISSION_FILENAME]
 
@@ -84,10 +83,8 @@ Export LeetCode solutions
 
 optional arguments:
   -h, --help            show this help message and exit
-  --username USERNAME   Set LeetCode username
-  --password PASSWORD   Set LeetCode password
-  --folder FOLDER       Output folder
   --cookies COOKIES     Set LeetCode cookies
+  --folder FOLDER       Output folder
   -v, --verbose         Enable verbose logging details
   -vv, --extra-verbose  Enable more verbose logging details
   --problem-filename PROBLEM_FILENAME

@@ -37,6 +37,11 @@ class LeetCode(object):
             return False
 
     def set_cookies(self, cookies: str) -> bool:
+        '''
+        Log in to LeetCode using cookies
+        :param cookies: string with cookies to set
+        :return: bool, true if login is successful, false otherwise
+        '''
         cookies_list = cookies.split(';')
         cookies_list = map(lambda el: el.split('='), cookies_list)
         for cookies in cookies_list:
@@ -49,6 +54,10 @@ class LeetCode(object):
             return False
 
     def is_user_logged(self) -> bool:
+        '''
+        Check if user is logged in LeetCode account
+        :return: bool, true if user is logged in, false otherwise
+        '''
         if self.user_logged and datetime.datetime.now() < self.user_logged_expiration:
             return True
         cookie_dict = self.session.cookies.get_dict()
@@ -64,6 +73,11 @@ class LeetCode(object):
         return False
 
     def get_problem(self, slug: str) -> Problem:
+        '''
+        Get LeetCode problem info
+        :param slug: problem identifier
+        :return: Problem
+        '''
         response = self.session.post(
             GRAPHQL_URL,
             json=question_detail_json(slug))
@@ -72,6 +86,10 @@ class LeetCode(object):
             return Problem.from_dict(problem_dict)
 
     def get_submissions(self) -> Dict[str, List[Submission]]:
+        '''
+        Get list of submission for logged user
+        :return: Dict[str, List[Submission]], dictionary with slug as key and submission for given problem as value
+        '''
         if not self.is_user_logged():
             logging.warning("Trying to get user submissions while user is not logged in")
             return {}
@@ -86,7 +104,8 @@ class LeetCode(object):
                 for submission_dict in response_json['submissions_dump']:
                     submission_dict['runtime'] = submission_dict['runtime'].replace(' ', '')
                     submission_dict['memory'] = submission_dict['memory'].replace(' ', '')
-                    submission_dict['date_formatted'] = datetime.datetime.fromtimestamp(submission_dict['timestamp']).strftime(
+                    submission_dict['date_formatted'] = datetime.datetime.fromtimestamp(
+                        submission_dict['timestamp']).strftime(
                         '%Y-%m-%d %H.%M.%S')
                     submission_dict['extension'] = language_to_extension(submission_dict['lang'])
                     for key in submission_dict:

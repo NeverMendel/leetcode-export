@@ -30,21 +30,41 @@ _regex_camelcase_to_snakecase2 = re.compile('([a-z0-9])([A-Z])')
 
 
 def language_to_extension(language: str) -> str:
+    '''
+    Return extension format for given programming language
+    :param language: programming language
+    :return: str extension format
+    '''
     return FILE_EXTENSIONS[language]
 
 
 def remove_special_characters(string: str) -> str:
+    '''
+    Returns a new string where without any character that is not allowed in windows filenames
+    :param string: string to process
+    :return: str string without special characters
+    '''
     for el in SPECIAL_CHARACTERS_FILENAME:
         string = string.replace(el, '')
     return string
 
 
 def camelcase_to_snakecase(string: str) -> str:
+    '''
+    Returns a new string transforming a CamelCase string into snake_case
+    :param string: CamelCase string to process
+    :return: str snake_case string
+    '''
     subbed = _regex_camelcase_to_snakecase1.sub(r'\1_\2', string)
     return _regex_camelcase_to_snakecase2.sub(r'\1_\2', subbed).lower()
 
 
 def dict_camelcase_to_snakecase(dictionary: Dict[str, any]) -> Dict[str, any]:
+    '''
+    Returns a new dictionary where keys are transformed from CamelCase into snake_case
+    :param dictionary: original dictionary
+    :return: Dict[str, any] new dictionary with snake_case keys
+    '''
     new_dict: Dict[str, any] = {}
     for key in dictionary:
         new_dict[camelcase_to_snakecase(key)] = dictionary[key]
