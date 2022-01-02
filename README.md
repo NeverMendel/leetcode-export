@@ -1,6 +1,6 @@
 # LeetCode Export
 
-Python script and Docker image to export your LeetCode solutions.
+Python script and Docker image to export your LeetCode submissions.
 
 ## DISCLAIMER
 
