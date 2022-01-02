@@ -36,15 +36,17 @@ class LeetCode(object):
             logging.warning(response_post.json())
             return False
 
-    def set_cookies(self, cookies: str):
+    def set_cookies(self, cookies: str) -> bool:
         cookies_list = cookies.split(';')
         cookies_list = map(lambda el: el.split('='), cookies_list)
         for cookies in cookies_list:
             self.session.cookies.set(cookies[0].strip(), cookies[1].strip())
         if self.is_user_logged():
             logging.info("Cookies set successful")
+            return True
         else:
             logging.warning("Cookies set failed")
+            return False
 
     def is_user_logged(self) -> bool:
         if self.user_logged and datetime.datetime.now() < self.user_logged_expiration:

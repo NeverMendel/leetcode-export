@@ -98,28 +98,11 @@ optional arguments:
 
 ## Login
 
-To download your submissions you need to log in your LeetCode account. There are two ways to log in, by inserting
-username/password or by cookies.
+To download your submissions you need to log in your LeetCode account by providing the cookies.
 
-You can either use the interactive menu to supply the required information or you can pass them as program arguments
-when lunching the script.
-
-The former option is to be preferred as it will avoid storing your password or your cookies in the command history.
-
-### Username/Password
-
-To log in using username and password, insert them using the interactive menu (preferred) or pass them as arguments when
-lunching the script, like in the following example:
-
-```bash
-python leetcode-export --username {USERNAME} --password {PASSWORD}
-```
-
-### Cookies
-
-To log in using cookies, you first need to get them from a session where you are already logged in. Login in your
-browser, open the browser's Dev Tool, click on the Network tab and copy the cookie header that is sent when you visit
-any leetcode webpage.
+To log in using cookies, you need to get them from a session where you are already logged in. Login in your LeetCode
+account in your browser, open the browser's Dev Tool, click on the Network tab and copy the cookie header that is sent
+when you visit any leetcode webpage.
 
 You can insert the cookie string that you have just copied in the interactive menu (recommended) or you can pass it as a
 program argument when lunching the script, like in the following example:
@@ -127,6 +110,8 @@ program argument when lunching the script, like in the following example:
 ```bash
 python leetcode-export --cookies {COOKIES}
 ```
+
+Using the interactive menu is to be preferred as it will avoid storing your cookies in the command history.
 
 ## Filename template arguments
 
@@ -150,7 +135,7 @@ title: str
 title_slug: str
 ```
 
-Default problem description filename template: `${questionId} - ${titleSlug}.txt`
+Default problem description filename template: `${question_id} - ${title_slug}.txt`
 
 ### Submission filename template
 

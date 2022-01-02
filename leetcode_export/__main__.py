@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import getpass
 import logging
 import os
 from string import Template
@@ -18,8 +17,6 @@ ${content}
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions')
-    parser.add_argument('--username', type=str, help='Set LeetCode username')
-    parser.add_argument('--password', type=str, help='Set LeetCode password')
     parser.add_argument('--cookies', type=str, help='Set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='Output folder')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable verbose logging details')
@@ -58,34 +55,15 @@ def main():
     submission_template = Template(args.submission_filename)
 
     leetcode = LeetCode()
-    username = ''
-    password = ''
-    cookies = ''
+    cookies = args.cookies
 
-    # Login into leetcode
-    if (not args.username or not args.password) and not args.cookies:
-        choice = input("How do you want to login?\n  1 - Username and Password\n  2 - Cookies\n")
-        while choice != '1' and choice != '2':
-            print("Choice not valid, input 1 or 2")
-            choice = input("How do you want to login?\n  1 - Username and Password\n  2 - Cookies\n")
+    if not cookies:
+        cookies = input("Insert LeetCode cookies: ")
 
-        if choice == '1':
-            username = input("Insert LeetCode username: ")
-            password = getpass.getpass(prompt="Insert LeetCode password: ")
-        else:
-            cookies = input("Insert LeetCode cookies: ")
-    else:
-        username = args.username
-        password = args.password
-        cookies = args.cookies
-
-    if username and password and not leetcode.log_in(args.username, args.password):
+    if not leetcode.set_cookies(cookies):
         print(
-            "Login not successful! You might have entered the wrong username/password or you need to complete the reCAPTCHA. If you need to complete the reCAPTCHA, log in with the cookies instead. Check the log for more information.")
+            "Cookies not valid. Copy them from the Network tab of your browser by clicking on any leetcode.com request and going in Request Headers > cookie.")
         exit(1)
-
-    if cookies:
-        leetcode.set_cookies(cookies)
 
     # Create output folder if it doesn't already exist
     if not os.path.exists(args.folder):
