@@ -23,13 +23,38 @@ section [Docker Image here](#docker-image).
 
 ## How to use
 
-### Run locally
+To use it locally you can either download it from pypi.org or you can clone this repository.
 
-First install all the needed dependencies by executing:
+## Download from pypi.org
+
+Execute `py install leetcode-export` to download it and install all the needed dependencies. You might need to use `py3`
+depending on how python is configured in your system.
+
+### Clone the repository
+
+Clone this repository:
+
+```bash
+git clone https://github.com/NeverMendel/leetcode-exports
+```
+
+Install all the needed dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
+
+Now you can either install it or just execute it:
+
+- To install leetcode-export in your system:
+    ```bash
+    python ./setup.py install
+    ```
+
+- To run the project without installing it:
+    ```bash
+    python -m leetcode_export --folder submissions
+    ```
 
 ### Docker Image
 
@@ -49,7 +74,7 @@ docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
 
 The script accepts the following arguments:
 
-```bash
+```
 usage: leetcode-export [-h] [--username USERNAME] [--password PASSWORD]
                        [--folder FOLDER] [--cookies COOKIES] [-v] [-vv]
                        [--problem-filename PROBLEM_FILENAME]
@@ -73,11 +98,13 @@ optional arguments:
 
 ## Login
 
-To download your submissions you need to log in your LeetCode account. There are two ways to log in, by
+To download your submissions you need to log in your LeetCode account. There are two ways to log in, by inserting
 username/password or by cookies.
 
 You can either use the interactive menu to supply the required information or you can pass them as program arguments
 when lunching the script.
+
+The former option is to be preferred as it will avoid storing your password or your cookies in the command history.
 
 ### Username/Password
 
@@ -85,15 +112,17 @@ To log in using username and password, insert them using the interactive menu (p
 lunching the script, like in the following example:
 
 ```bash
-python leetcode-export --username {USERNAME} --password {PASSWORD}`
+python leetcode-export --username {USERNAME} --password {PASSWORD}
 ```
-
-The former option is to be preferred as it will avoid storing your password in the command history.
 
 ### Cookies
 
-To log in using cookies, pass the string containing them as arguments when lunching the script, like in the following
-example:
+To log in using cookies, you first need to get them from a session where you are already logged in. Login in your
+browser, open the browser's Dev Tool, click on the Network tab and copy the cookie header that is sent when you visit
+any leetcode webpage.
+
+You can insert the cookie string that you have just copied in the interactive menu (recommended) or you can pass it as a
+program argument when lunching the script, like in the following example:
 
 ```bash
 python leetcode-export --cookies {COOKIES}
@@ -114,11 +143,11 @@ The template can contain parameters that will later be replaced based on the Lee
 parameters are the following:
 
 ```python
-questionId: int
+question_id: int
 difficulty: str
 stats: str
 title: str
-titleSlug: str
+title_slug: str
 ```
 
 Default problem description filename template: `${questionId} - ${titleSlug}.txt`

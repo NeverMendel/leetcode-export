@@ -8,11 +8,11 @@ GRAPHQL_URL = 'https://leetcode.com/graphql'
 @dataclass_json
 @dataclass
 class Problem:
-    questionId: int
+    question_id: int
     difficulty: str
     stats: str
     title: str
-    titleSlug: str
+    title_slug: str
     content: str
 
 

@@ -7,8 +7,8 @@ RUN apk add --no-cache \
       py3-pip
 
 # Copy current directory to /usr/src/app
-ADD . /usr/src/app
-WORKDIR /usr/src/app
+ADD . /usr/app
+WORKDIR /usr/app
 
 # Create out folder
 RUN mkdir -p out

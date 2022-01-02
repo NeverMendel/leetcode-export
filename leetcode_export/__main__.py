@@ -9,8 +9,8 @@ from typing import List, Dict
 from leetcode_export.leetcode import LeetCode
 from leetcode_export.leetcode_rest import Submission
 
-PROBLEM_CONTENT_TEMPLATE = Template('''${questionId} - ${title}
-${difficulty} - https://leetcode.com/problems/${titleSlug}/
+PROBLEM_CONTENT_TEMPLATE = Template('''${question_id} - ${title}
+${difficulty} - https://leetcode.com/problems/${title_slug}/
 
 ${content}
 ''')
@@ -18,14 +18,14 @@ ${content}
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions')
-    parser.add_argument('--username', type=str, required=False, help='Set LeetCode username')
-    parser.add_argument('--password', type=str, required=False, help='Set LeetCode password')
-    parser.add_argument('--folder', type=str, required=False, help='Output folder', default='out')
-    parser.add_argument('--cookies', type=str, required=False, help='Set LeetCode cookies')
+    parser.add_argument('--username', type=str, help='Set LeetCode username')
+    parser.add_argument('--password', type=str, help='Set LeetCode password')
+    parser.add_argument('--cookies', type=str, help='Set LeetCode cookies')
+    parser.add_argument('--folder', type=str, default='.', help='Output folder')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable verbose logging details')
     parser.add_argument('-vv', '--extra-verbose', dest='extra_verbose', action='store_true',
                         help='Enable more verbose logging details')
-    parser.add_argument('--problem-filename', type=str, default='${questionId} - ${titleSlug}.txt',
+    parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.txt',
                         help='Problem description filename format')
     parser.add_argument('--submission-filename', type=str,
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
