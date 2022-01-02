@@ -7,7 +7,7 @@ setup(
     name='leetcode-export',
     version='1.0',
     url='https://github.com/NeverMendel/leetcode-export',
-    license='Apache-2.0',
+    license='MIT',
     author='Davide Cazzin',
     description='Python script to export your LeetCode solutions',
     long_description=long_description,
@@ -16,7 +16,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
-        'License :: OSI Approved :: Apache Software License 2.0 (Apache-2.0)',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
     packages=find_packages(),
