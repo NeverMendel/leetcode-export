@@ -47,11 +47,12 @@ class LeetCode(object):
             logging.warning("Cookies set failed")
 
     def is_user_logged(self) -> bool:
-        if self.user_logged and datetime.datetime.now() > self.user_logged_expiration:
+        if self.user_logged and datetime.datetime.now() < self.user_logged_expiration:
             return True
         cookie_dict = self.session.cookies.get_dict()
         if 'csrftoken' in cookie_dict and 'LEETCODE_SESSION' in cookie_dict:
-            get_request = self.session.get(SUBMISSIONS_API_URL.format(0))
+            get_request = self.session.get(SUBMISSIONS_API_URL.format(0, 1))
+            sleep(1)  # cooldown time for get request
             if 'detail' not in get_request.json():
                 logging.debug("User is logged in")
                 self.user_logged = True
@@ -78,12 +79,12 @@ class LeetCode(object):
         while 'detail' not in response_json and 'has_next' in response_json and response_json['has_next']:
             logging.info(f"Exporting submissions from {current} to {current + 20}")
             response_json = self.session.get(
-                SUBMISSIONS_API_URL.format(current)).json()
+                SUBMISSIONS_API_URL.format(current, 20)).json()
             if 'submissions_dump' in response_json:
                 for submission_dict in response_json['submissions_dump']:
                     submission_dict['runtime'] = submission_dict['runtime'].replace(' ', '')
                     submission_dict['memory'] = submission_dict['memory'].replace(' ', '')
-                    submission_dict['date_formatted'] = datetime.fromtimestamp(submission_dict['timestamp']).strftime(
+                    submission_dict['date_formatted'] = datetime.datetime.fromtimestamp(submission_dict['timestamp']).strftime(
                         '%Y-%m-%d %H.%M.%S')
                     submission_dict['extension'] = language_to_extension(submission_dict['lang'])
                     for key in submission_dict:
@@ -93,8 +94,9 @@ class LeetCode(object):
                     if submission.title_slug not in dictionary:
                         dictionary[submission.title_slug] = []
                     dictionary[submission.title_slug].append(submission)
-                sleep(1)
+
             current += 20
+            sleep(1)
         if 'detail' in response_json:
             logging.warning(response_json['detail'])
         return dictionary

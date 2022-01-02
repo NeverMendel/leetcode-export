@@ -48,7 +48,7 @@ Now you can either install it or just execute it:
 
 - To install leetcode-export in your system:
     ```bash
-    python ./setup.py install
+    python setup.py install
     ```
 
 - To run the project without installing it:
