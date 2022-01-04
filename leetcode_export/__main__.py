@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
 import argparse
 import logging
 import os
 from string import Template
 from typing import Set
 
+from leetcode_export._version import __version__
 from leetcode_export.leetcode import LeetCode
 
 PROBLEM_CONTENT_TEMPLATE = Template('''${question_id} - ${title}
@@ -16,16 +16,18 @@ ${content}
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions')
-    parser.add_argument('--cookies', type=str, help='Set LeetCode cookies')
-    parser.add_argument('--folder', type=str, default='.', help='Output folder')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Enable verbose logging details')
-    parser.add_argument('-vv', '--extra-verbose', dest='extra_verbose', action='store_true',
-                        help='Enable more verbose logging details')
+    parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
+    parser.add_argument('--folder', type=str, default='.', help='set output folder')
     parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.txt',
-                        help='Problem description filename format')
+                        help='problem description filename format')
     parser.add_argument('--submission-filename', type=str,
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
-                        help='Submission filename format')
+                        help='submission filename format')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='enable verbose logging details')
+    parser.add_argument('-vv', '--extra-verbose', dest='extra_verbose', action='store_true',
+                        help='enable more verbose logging details')
+    parser.add_argument('-V', '--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
     parser.set_defaults(verbose=False, extra_verbose=False)
 
     return parser.parse_args()

@@ -95,22 +95,24 @@ python leetcode-export --cookies {COOKIES}
 The script accepts the following arguments:
 
 ```
-usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER] [-v] [-vv]
+usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-filename PROBLEM_FILENAME]
-                       [--submission-filename SUBMISSION_FILENAME]
+                       [--submission-filename SUBMISSION_FILENAME] [-v] [-vv]
+                       [-V]
 
 Export LeetCode solutions
 
 optional arguments:
   -h, --help            show this help message and exit
-  --cookies COOKIES     Set LeetCode cookies
-  --folder FOLDER       Output folder
-  -v, --verbose         Enable verbose logging details
-  -vv, --extra-verbose  Enable more verbose logging details
+  --cookies COOKIES     set LeetCode cookies
+  --folder FOLDER       set output folder
   --problem-filename PROBLEM_FILENAME
-                        Problem description filename format
+                        problem description filename format
   --submission-filename SUBMISSION_FILENAME
-                        Submission filename format
+                        submission filename format
+  -v, --verbose         enable verbose logging details
+  -vv, --extra-verbose  enable more verbose logging details
+  -V, --version         show program's version number and exit
 ```
 
 Using the interactive menu is preferred as it will avoid storing your cookies in the command history.

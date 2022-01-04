@@ -1,14 +1,17 @@
 from setuptools import setup, find_packages
 
+exec(open('leetcode_export/_version.py').read())
+
 with open("README.md", 'r') as f:
     long_description = f.read()
 
 setup(
     name='leetcode-export',
-    version='1.1.1',
+    version=__version__,
     url='https://github.com/NeverMendel/leetcode-export',
     license='MIT',
     author='Davide Cazzin',
+    email='cazzindavide@gmail.com',
     description='Python script to export your LeetCode solutions',
     long_description=long_description,
     long_description_content_type='text/markdown',
