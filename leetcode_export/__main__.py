@@ -3,10 +3,9 @@ import argparse
 import logging
 import os
 from string import Template
-from typing import List, Dict
+from typing import Set
 
 from leetcode_export.leetcode import LeetCode
-from leetcode_export.leetcode_rest import Submission
 
 PROBLEM_CONTENT_TEMPLATE = Template('''${question_id} - ${title}
 ${difficulty} - https://leetcode.com/problems/${title_slug}/
@@ -70,31 +69,30 @@ def main():
         os.mkdir(args.folder)
     os.chdir(args.folder)
 
-    submissions: Dict[str, List[Submission]] = leetcode.get_submissions()
+    written_problems: Set[str] = set()
 
-    for slug in submissions:
-        logging.info(f"Processing {slug}")
-        if not os.path.exists(slug):
-            os.mkdir(slug)
+    for submission in leetcode.get_submissions():
+        if not os.path.exists(submission.title_slug):
+            os.mkdir(submission.title_slug)
+        os.chdir(submission.title_slug)
+
+        if submission.title_slug not in written_problems:
+            problem = leetcode.get_problem(submission.title_slug)
+            info_filename = problem_template.substitute(**problem.__dict__)
+            if not os.path.exists(info_filename):
+                info_file = open(info_filename, 'w+')
+                info_file.write(PROBLEM_CONTENT_TEMPLATE.substitute(**problem.__dict__))
+                info_file.close()
+            written_problems.add(submission.title_slug)
+
+        sub_filename = submission_template.substitute(**submission.__dict__)
+        if not os.path.exists(sub_filename):
+            logging.info(f"Writing {submission.title_slug}/{sub_filename}")
+            sub_file = open(sub_filename, 'w+')
+            sub_file.write(submission.code)
+            sub_file.close()
         else:
-            logging.info(f"Folder {slug} already exists")
-        os.chdir(slug)
-        problem_description = leetcode.get_problem(slug)
-        info_filename = problem_template.substitute(**problem_description.__dict__)
-        if not os.path.exists(info_filename):
-            info_file = open(info_filename, 'w+')
-            info_file.write(PROBLEM_CONTENT_TEMPLATE.substitute(**problem_description.__dict__))
-            info_file.close()
-
-        for sub in submissions[slug]:
-            sub_filename = submission_template.substitute(**sub.__dict__)
-            if not os.path.exists(sub_filename):
-                logging.info(f"Writing {slug}/{sub_filename}")
-                sub_file = open(sub_filename, 'w+')
-                sub_file.write(sub.code)
-                sub_file.close()
-            else:
-                logging.info(f"{slug}/{sub_filename} already exists, skipping it")
+            logging.info(f"{submission.title_slug}/{sub_filename} already exists, skipping it")
 
         os.chdir("..")
 

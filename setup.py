@@ -5,7 +5,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='leetcode-export',
-    version='1.1',
+    version='1.1.1',
     url='https://github.com/NeverMendel/leetcode-export',
     license='MIT',
     author='Davide Cazzin',

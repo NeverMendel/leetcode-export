@@ -25,10 +25,11 @@ section [Docker Image here](#docker-image).
 
 To use `leetcode-export` you can either download it from pypi.org or you can clone this repository.
 
-## Download from pypi.org
+### Download from pypi.org
 
-Run `pip install leetcode-export` to download it and install all the needed dependencies. You might need to use `pip3`
-depending on the configuration of your system.
+Run `pip install leetcode-export` to install leetcode-export, you might have to use `pip3` of your system. To use the
+script run `leetcode-export`, optionally supply the script arguments, for more instructions read the
+section [script arguments here](#script-arguments).
 
 ### Clone the repository
 
@@ -44,14 +45,14 @@ Install all the needed dependencies:
 pip install -r requirements.txt
 ```
 
-Now you can either install it or just execute it:
+You can either install leetcode-export in your system or just execute it:
 
-- To install leetcode-export in your system:
+- To install it run:
     ```bash
     python setup.py install
     ```
 
-- To run the project without installing it:
+- To execute the script without installing it:
     ```bash
     python -m leetcode_export --folder submissions
     ```
@@ -68,6 +69,25 @@ Download all your LeetCode submission in the current folder:
 
 ```bash
 docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
+```
+
+## Login
+
+To download your submissions you need to log in your LeetCode account by providing the cookies. To log in using cookies,
+you need to get them from a session where you are already logged in.
+
+**Steps required**:
+
+- Login in your LeetCode account in your browser
+- Open the browser's Dev Tool
+- Click on the Network tab
+- Copy the cookie header that can be found under Request Headers in any leetcode.com request.
+
+You can insert the cookie string that you have just copied in the interactive menu (recommended) or you can pass it as a
+program argument when lunching the script, like in the following example:
+
+```bash
+python leetcode-export --cookies {COOKIES}
 ```
 
 ## Script arguments
@@ -91,24 +111,6 @@ optional arguments:
                         Problem description filename format
   --submission-filename SUBMISSION_FILENAME
                         Submission filename format
-```
-
-## Login
-
-To download your submissions you need to log in your LeetCode account by providing the cookies. To log in using cookies,
-you need to get them from a session where you are already logged in.
-
-**Steps required**: 
-- Login in your LeetCode account in your browser
-- Open the browser's Dev Tool
-- Click on the Network tab
-- Copy the cookie header that can be found under Request Headers in any leetcode.com request.
-
-You can insert the cookie string that you have just copied in the interactive menu (recommended) or you can pass it as a
-program argument when lunching the script, like in the following example:
-
-```bash
-python leetcode-export --cookies {COOKIES}
 ```
 
 Using the interactive menu is preferred as it will avoid storing your cookies in the command history.
@@ -165,7 +167,6 @@ title_slug: str
 date_formatted: str
 extension: str
 ```
-
 
 Default submission filename
 template: `${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}`

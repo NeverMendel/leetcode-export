@@ -1,7 +1,7 @@
 import datetime
 import logging
 from time import sleep
-from typing import Dict, List
+from typing import Dict, Iterator
 
 import requests
 
@@ -85,15 +85,15 @@ class LeetCode(object):
             problem_dict = dict_camelcase_to_snakecase(response.json()['data']['question'])
             return Problem.from_dict(problem_dict)
 
-    def get_submissions(self) -> Dict[str, List[Submission]]:
+    def get_submissions(self) -> Iterator[Submission]:
         '''
-        Get list of submission for logged user
-        :return: Dict[str, List[Submission]], dictionary with slug as key and submission for given problem as value
+        Get submissions for logged user
+        :return: Iterator[Submission], LeetCode submission
         '''
         if not self.is_user_logged():
             logging.warning("Trying to get user submissions while user is not logged in")
-            return {}
-        dictionary: Dict[str, List[Submission]] = {}
+            return None
+
         current = 0
         response_json: Dict = {'has_next': True}
         while 'detail' not in response_json and 'has_next' in response_json and response_json['has_next']:
@@ -112,12 +112,9 @@ class LeetCode(object):
                         if type(submission_dict[key]) == str and key != 'url' and key != 'code':
                             submission_dict[key] = remove_special_characters(submission_dict[key])
                     submission = Submission.from_dict(submission_dict)
-                    if submission.title_slug not in dictionary:
-                        dictionary[submission.title_slug] = []
-                    dictionary[submission.title_slug].append(submission)
+                    yield submission
 
             current += 20
             sleep(1)
         if 'detail' in response_json:
             logging.warning(response_json['detail'])
-        return dictionary
