@@ -9,6 +9,7 @@ on:
 
 jobs:
   publish-image:
+    name: Publish Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

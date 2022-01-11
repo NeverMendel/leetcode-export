@@ -7,19 +7,17 @@ from typing import Set
 from leetcode_export._version import __version__
 from leetcode_export.leetcode import LeetCode
 
-PROBLEM_CONTENT_TEMPLATE = Template('''${question_id} - ${title}
-${difficulty} - https://leetcode.com/problems/${title_slug}/
-
-${content}
-''')
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions')
     parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='set output folder')
-    parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.txt',
+    parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.html',
                         help='problem description filename format')
+    parser.add_argument('--problem-content', type=str,
+                        default='<h1>${question_id} - ${title}</h1><h2>Difficulty: ${difficulty} - ' +
+                                '<a href="https://leetcode.com/problems/${title_slug}/">${title_slug}</a></h2>${content}',
+                        help='problem description content format')
     parser.add_argument('--submission-filename', type=str,
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
                         help='submission filename format')
@@ -53,6 +51,7 @@ def main():
     )
 
     problem_template = Template(args.problem_filename)
+    problem_content_template = Template(args.problem_content)
     submission_template = Template(args.submission_filename)
 
     leetcode = LeetCode()
@@ -83,7 +82,7 @@ def main():
             info_filename = problem_template.substitute(**problem.__dict__)
             if not os.path.exists(info_filename):
                 info_file = open(info_filename, 'w+')
-                info_file.write(PROBLEM_CONTENT_TEMPLATE.substitute(**problem.__dict__))
+                info_file.write(problem_content_template.substitute(**problem.__dict__))
                 info_file.close()
             written_problems.add(submission.title_slug)
 

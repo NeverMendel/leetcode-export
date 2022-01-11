@@ -8,9 +8,7 @@ The problems hosted on leetcode.com are intellectual propriety of LeetCode LLC u
 UPLOAD THE DESCRIPTION OF LEETCODE PROBLEMS ON GITHUB OR ON ANY OTHER WEBSITE** or you might receive ad DMCA Takedown
 notice.
 
-Before using this script make read [LeetCode Terms of Service](https://leetcode.com/terms/).
-
-To avoid committing the problem description on git, you can add `*.txt` to your `.gitignore` file.
+Before using this script read the [LeetCode Terms of Service](https://leetcode.com/terms/).
 
 ## How it works
 
@@ -97,6 +95,7 @@ The script accepts the following arguments:
 ```
 usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-filename PROBLEM_FILENAME]
+                       [--problem-content PROBLEM_CONTENT]
                        [--submission-filename SUBMISSION_FILENAME] [-v] [-vv]
                        [-V]
 
@@ -108,6 +107,8 @@ optional arguments:
   --folder FOLDER       set output folder
   --problem-filename PROBLEM_FILENAME
                         problem description filename format
+  --problem-content PROBLEM_CONTENT
+                        problem description content format
   --submission-filename SUBMISSION_FILENAME
                         submission filename format
   -v, --verbose         enable verbose logging details
@@ -139,7 +140,26 @@ title: str
 title_slug: str
 ```
 
-Default problem description filename template: `${question_id} - ${title_slug}.txt`
+Default problem description filename template: `${question_id} - ${title_slug}.html`
+
+### Problem description content template
+
+To change the format of the problem description content, you can provide a template as a string when lunching the
+script.
+
+```bash
+python leetcode-export --problem-content PROBLEM_CONTENT
+```
+
+The template can contain parameters that will later be replaced based on the LeetCode problem information. The available
+parameters are the ones used in [problem description filename template](#problem-description-filename-template) plus:
+
+```python
+content: str
+```
+
+Default problem description content
+template: `<h1>${question_id} - ${title}</h1><h2>Difficulty: ${difficulty} - <a href="https://leetcode.com/problems/${title_slug}/">${title_slug}</a></h2>${content}`
 
 ### Submission filename template
 
