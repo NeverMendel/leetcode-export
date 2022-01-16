@@ -47,7 +47,7 @@ You can either install leetcode-export in your system or just execute it:
 
 - To install it run:
     ```bash
-    python setup.py install
+    pip install .
     ```
 
 - To execute the script without installing it:
