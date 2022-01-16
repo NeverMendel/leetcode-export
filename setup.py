@@ -11,7 +11,7 @@ setup(
     url='https://github.com/NeverMendel/leetcode-export',
     license='MIT',
     author='Davide Cazzin',
-    email='cazzindavide@gmail.com',
+    author_email='cazzindavide@gmail.com',
     description='Python script to export your LeetCode solutions',
     long_description=long_description,
     long_description_content_type='text/markdown',
