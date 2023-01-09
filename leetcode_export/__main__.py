@@ -6,12 +6,14 @@ from typing import Set
 
 from leetcode_export._version import __version__
 from leetcode_export.leetcode import LeetCode
+from leetcode_export.utils import language_to_extension
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions')
     parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='set output folder')
+    parser.add_argument('--lang', type=str, help='save submissions of specified language')
     parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.html',
                         help='problem description filename format')
     parser.add_argument('--problem-content', type=str,
@@ -77,6 +79,10 @@ def main():
         if not args.including_wrong and submission.status_display != 'Accepted':
             continue
         
+        if args.lang and language_to_extension(args.lang):
+            if submission.lang != args.lang:
+                continue
+
         if not os.path.exists(submission.title_slug):
             os.mkdir(submission.title_slug)
         os.chdir(submission.title_slug)
