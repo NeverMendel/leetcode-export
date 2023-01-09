@@ -74,6 +74,7 @@ def main():
     os.chdir(args.folder)
 
     written_problems: Set[str] = set()
+    question_id_dict = dict()
 
     for submission in leetcode.get_submissions():
         if not args.including_wrong and submission.status_display != 'Accepted':
@@ -95,6 +96,7 @@ def main():
                 info_file.write(problem_content_template.substitute(**problem.__dict__))
                 info_file.close()
             written_problems.add(submission.title_slug)
+            question_id_dict[submission.title_slug] = problem.question_id
 
         sub_filename = submission_template.substitute(**submission.__dict__)
         if not os.path.exists(sub_filename):
@@ -107,6 +109,7 @@ def main():
 
         os.chdir("..")
 
-
+    for problem in written_problems:
+        os.rename(problem, f'{question_id_dict[problem]}-{problem}')
 if __name__ == '__main__':
     main()
