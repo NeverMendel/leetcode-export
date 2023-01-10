@@ -72,11 +72,11 @@ docker run -it -v $(pwd):/usr/app/out --rm nevermendel/leetcode-export
 ## Login
 
 To download your submissions you need to log in your LeetCode account by providing the cookies. To log in using cookies,
-you need to get them from a session where you are already logged in.
+get them from an existing session.
 
 **Steps required**:
 
-- Login in your LeetCode account in your browser
+- Login in to LeetCode in the web browser
 - Open the browser's Dev Tool
 - Click on the Network tab
 - Copy the cookie header that can be found under Request Headers in any leetcode.com request.

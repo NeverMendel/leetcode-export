@@ -1,3 +1,8 @@
+'''
+LeetCode Export.
+
+Export your LeetCode submissions and related problem statements.
+'''
 import argparse
 import logging
 import os
@@ -10,17 +15,17 @@ from leetcode_export.utils import VALID_PROGRAMMING_LANGUAGES
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Export LeetCode solutions', formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description='Export LeetCode submissions', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='set output folder')
     parser.add_argument('--problem-folder-name', type=str, default='${question_id}-${title_slug}',
                         help='problem folder name format')
-    parser.add_argument('--problem-filename', type=str, default='${question_id}-${title_slug}.html',
-                        help='problem description filename format')
-    parser.add_argument('--problem-content', type=str,
+    parser.add_argument('--problem-statement-filename', type=str, default='${question_id}-${title_slug}.html',
+                        help='problem statement filename format')
+    parser.add_argument('--problem-statement-content', type=str,
                         default='<h1>${question_id} - ${title}</h1><h2>Difficulty: ${difficulty} - ' +
                                 '<a href="https://leetcode.com/problems/${title_slug}/">${title_slug}</a></h2>${content}',
-                        help='problem description content format')
+                        help='problem statement content format')
     parser.add_argument('--submission-filename', type=str,
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
                         help='submission filename format')
@@ -73,9 +78,9 @@ def main():
     logging.info(args)
 
     problem_folder_name_template = Template(args.problem_folder_name)
-    problem_statement_template = Template(args.problem_filename)
-    problem_content_template = Template(args.problem_content)
-    submission_template = Template(args.submission_filename)
+    problem_statement_filename_template = Template(args.problem_statement_filename)
+    problem_statement_template = Template(args.problem_statement_content)
+    submission_filename_template = Template(args.submission_filename)
 
     leetcode = LeetCode()
     cookies = args.cookies
@@ -84,8 +89,8 @@ def main():
         cookies = input("Insert LeetCode cookies: ")
 
     if not leetcode.set_cookies(cookies):
-        print(
-            "Cookies not valid. Copy them from the Network tab of your browser by clicking on any leetcode.com request and going in Request Headers > cookie.")
+        logging.error(
+            "Cookies not valid. Copy them from the Network tab of your browser by clicking on any leetcode.com request and going in Request Headers > cookie. Check README.md file for further information")
         exit(1)
 
     # Create output folder if it doesn't already exist
@@ -103,28 +108,28 @@ def main():
             continue
 
         if submission.title_slug not in title_slug_to_problem_folder_name:
-            problem_statement = leetcode.get_problem(submission.title_slug)
+            problem_statement = leetcode.get_problem_statement(submission.title_slug)
             problem_folder_name = problem_folder_name_template.substitute(**problem_statement.__dict__)
             title_slug_to_problem_folder_name[submission.title_slug] = problem_folder_name
             if not os.path.exists(problem_folder_name):
                 os.mkdir(problem_folder_name)
             os.chdir(problem_folder_name)
 
-            problem_statement_filename = problem_statement_template.substitute(**problem_statement.__dict__)
+            problem_statement_filename = problem_statement_filename_template.substitute(**problem_statement.__dict__)
             if not os.path.exists(problem_statement_filename):
                 with open(problem_statement_filename, 'w+') as problem_statement_file:
-                    problem_statement_file.write(problem_content_template.substitute(**problem_statement.__dict__))
+                    problem_statement_file.write(problem_statement_template.substitute(**problem_statement.__dict__))
         else:
             os.chdir(title_slug_to_problem_folder_name[submission.title_slug])
 
-        sub_filename = submission_template.substitute(**submission.__dict__)
-        if not os.path.exists(sub_filename):
-            logging.info(f"Writing {submission.title_slug}/{sub_filename}")
-            sub_file = open(sub_filename, 'w+')
+        submission_filename = submission_filename_template.substitute(**submission.__dict__)
+        if not os.path.exists(submission_filename):
+            logging.info(f"Writing {submission.title_slug}/{submission_filename}")
+            sub_file = open(submission_filename, 'w+')
             sub_file.write(submission.code)
             sub_file.close()
         else:
-            logging.info(f"{submission.title_slug}/{sub_filename} already exists, skipping it")
+            logging.info(f"{submission.title_slug}/{submission_filename} already exists, skipping it")
 
         os.chdir("..")
 

@@ -1,3 +1,6 @@
+'''
+LeetCode Python APIs for retrieving submitted problems and problem statements.
+'''
 import datetime
 import logging
 from time import sleep
@@ -18,6 +21,12 @@ class LeetCode(object):
         self.user_logged_expiration = datetime.datetime.now()
 
     def log_in(self, username: str, password: str) -> bool:
+        '''
+        Log in to LeetCode using username and password
+        :param username: LeetCode username
+        :param password: LeetCode password
+        :return: bool, true if login is successful, false otherwise
+        '''
         self.session.get(LOGIN_URL)
 
         csrftoken = self.session.cookies.get('csrftoken')
@@ -42,16 +51,27 @@ class LeetCode(object):
         :param cookies: string with cookies to set
         :return: bool, true if login is successful, false otherwise
         '''
-        cookies_list = cookies.split(';')
-        cookies_list = map(lambda el: el.split('='), cookies_list)
-        for cookies in cookies_list:
-            self.session.cookies.set(cookies[0].strip(), cookies[1].strip())
-        if self.is_user_logged():
-            logging.info("Cookies set successful")
-            return True
-        else:
-            logging.warning("Cookies set failed")
+        valid_cookies = True
+        cookie_dict = {}
+
+        for cookie in cookies.split(';'):
+            cookie_split = [el.strip() for el in cookie.split('=', 1)]
+            if len(cookie_split) != 2:
+                valid_cookies = False
+                break
+            cookie_dict[cookie_split[0]] = cookie_split[1]
+
+        valid_cookies = valid_cookies and 'csrftoken' in cookie_dict and 'LEETCODE_SESSION' in cookie_dict
+        if not valid_cookies:
+            logging.error("Cookie format not valid. Expected: 'csrftoken=value1;LEETCODE_SESSION=value2;...'")
             return False
+
+        for (cookie_key, cookie_value) in cookie_dict.items():
+            self.session.cookies.set(cookie_key, cookie_value)
+        if self.is_user_logged():
+            logging.info("Cookie set successful")
+            return True
+        return False
 
     def is_user_logged(self) -> bool:
         '''
@@ -69,12 +89,12 @@ class LeetCode(object):
                 self.user_logged = True
                 self.user_logged_expiration = datetime.datetime.now() + datetime.timedelta(hours=5)
                 return True
-        logging.debug("User is not logged in")
+        logging.error("User is not logged in or account is invalid!")
         return False
 
-    def get_problem(self, slug: str) -> Problem:
+    def get_problem_statement(self, slug: str) -> Problem:
         '''
-        Get LeetCode problem info
+        Get LeetCode problem statement
         :param slug: problem identifier
         :return: Problem
         '''
@@ -91,7 +111,7 @@ class LeetCode(object):
         :return: Iterator[Submission], LeetCode submission
         '''
         if not self.is_user_logged():
-            logging.warning("Trying to get user submissions while user is not logged in")
+            logging.error("Trying to get user submissions while user is not logged in")
             return None
 
         current = 0
@@ -115,6 +135,6 @@ class LeetCode(object):
                     yield submission
 
             current += 20
-            sleep(5)
+            sleep(5) # cooldown time for get request
         if 'detail' in response_json:
             logging.warning(response_json['detail'])
