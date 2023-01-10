@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument('--submission-filename', type=str,
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
                         help='submission filename format')
+    parser.add_argument('--only-accepted', dest='only_accepted', action='store_true', help='save accepted submissions only')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='enable verbose logging details')
     parser.add_argument('-vv', '--extra-verbose', dest='extra_verbose', action='store_true',
                         help='enable more verbose logging details')
@@ -50,6 +51,8 @@ def main():
         ]
     )
 
+    logging.info(args)
+
     problem_template = Template(args.problem_filename)
     problem_content_template = Template(args.problem_content)
     submission_template = Template(args.submission_filename)
@@ -73,6 +76,9 @@ def main():
     written_problems: Set[str] = set()
 
     for submission in leetcode.get_submissions():
+        if args.only_accepted and submission.status_display != 'Accepted':
+            continue
+
         if not os.path.exists(submission.title_slug):
             os.mkdir(submission.title_slug)
         os.chdir(submission.title_slug)
