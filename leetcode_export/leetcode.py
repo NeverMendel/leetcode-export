@@ -115,6 +115,6 @@ class LeetCode(object):
                     yield submission
 
             current += 20
-            sleep(1)
+            sleep(5)
         if 'detail' in response_json:
             logging.warning(response_json['detail'])

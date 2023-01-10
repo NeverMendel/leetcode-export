@@ -1,6 +1,8 @@
 import re
 from typing import Dict
 
+VALID_PROGRAMMING_LANGUAGES = ['python', 'python3', 'c', 'cpp', 'csharp', 'java', 'kotlin', 'mysql', 'mssql', 'oraclesql', 'javascript', 'html', 'php', 'golang', 'scala', 'pythonml', 'rust', 'ruby', 'bash', 'swift']
+
 FILE_EXTENSIONS = {
     "python": 'py',
     "python3": 'py',

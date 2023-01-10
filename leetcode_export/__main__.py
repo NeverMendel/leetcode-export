@@ -6,10 +6,11 @@ from typing import Set
 
 from leetcode_export._version import __version__
 from leetcode_export.leetcode import LeetCode
+from leetcode_export.utils import VALID_PROGRAMMING_LANGUAGES
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Export LeetCode solutions')
+    parser = argparse.ArgumentParser(description='Export LeetCode solutions', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='set output folder')
     parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.html',
@@ -22,6 +23,10 @@ def parse_args():
                         default='${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}',
                         help='submission filename format')
     parser.add_argument('--only-accepted', dest='only_accepted', action='store_true', help='save accepted submissions only')
+    parser.add_argument('--language', dest='language_unprocessed', type=str,
+                        help="only save submissions for the specified programming languages (eg. '--language=python,python3,cpp,java,golang')\n" +
+                        "supported languages: 'python', 'python3', 'c', 'cpp', 'csharp', 'java', 'kotlin', 'mysql', 'mssql', 'oraclesql',\n"+
+                        "                     'javascript', 'html', 'php', 'golang', 'scala', 'pythonml', 'rust', 'ruby', 'bash', 'swift'")
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='enable verbose logging details')
     parser.add_argument('-vv', '--extra-verbose', dest='extra_verbose', action='store_true',
                         help='enable more verbose logging details')
@@ -29,7 +34,19 @@ def parse_args():
                         version='%(prog)s {version}'.format(version=__version__))
     parser.set_defaults(verbose=False, extra_verbose=False)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.language_unprocessed:
+        languages = args.language_unprocessed.split(',')
+        args.language = [lang.strip() for lang in languages]
+        for lang in languages:
+            if lang not in VALID_PROGRAMMING_LANGUAGES:
+                parser.error(f"Invalid language: '{lang}'")
+        args.language = languages
+    else:
+        args.language = None
+
+    return args
 
 
 def main():
@@ -77,6 +94,9 @@ def main():
 
     for submission in leetcode.get_submissions():
         if args.only_accepted and submission.status_display != 'Accepted':
+            continue
+
+        if args.language and submission.lang not in args.language:
             continue
 
         if not os.path.exists(submission.title_slug):
