@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from dataclasses_json import dataclass_json
 
-GRAPHQL_URL = 'https://leetcode.com/graphql'
+GRAPHQL_URL = "https://leetcode.com/graphql"
 
 
 @dataclass_json
@@ -19,9 +19,7 @@ class Problem:
 def question_detail_json(slug):
     return {
         "operationName": "getQuestionDetail",
-        "variables": {
-            "titleSlug": slug
-        },
+        "variables": {"titleSlug": slug},
         "query": """query getQuestionDetail($titleSlug: String!) {
             question(titleSlug: $titleSlug) {
                 questionId
@@ -31,5 +29,5 @@ def question_detail_json(slug):
                 titleSlug
                 content
             }
-        }"""
+        }""",
     }

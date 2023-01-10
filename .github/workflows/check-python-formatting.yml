@@ -1,0 +1,12 @@
+name: Check Python Formatting
+
+on: [push, pull_request]
+
+jobs:
+  check-formatting:
+    name: runner / black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1

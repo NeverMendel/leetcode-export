@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from dataclasses_json import dataclass_json
 
-BASE_URL = 'https://leetcode.com'
-LOGIN_URL = 'https://leetcode.com/accounts/login/'
-SUBMISSIONS_API_URL = 'https://leetcode.com/api/submissions/?offset={}&limit={}'
-PROBLEM_URL = 'https://leetcode.com/problems/'
+BASE_URL = "https://leetcode.com"
+LOGIN_URL = "https://leetcode.com/accounts/login/"
+SUBMISSIONS_API_URL = "https://leetcode.com/api/submissions/?offset={}&limit={}"
+PROBLEM_URL = "https://leetcode.com/problems/"
 
 
 @dataclass_json
