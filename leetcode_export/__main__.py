@@ -13,7 +13,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Export LeetCode solutions', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--cookies', type=str, help='set LeetCode cookies')
     parser.add_argument('--folder', type=str, default='.', help='set output folder')
-    parser.add_argument('--problem-filename', type=str, default='${question_id} - ${title_slug}.html',
+    parser.add_argument('--problem-folder-name', type=str, default='${question_id}-${title_slug}',
+                        help='problem folder name format')
+    parser.add_argument('--problem-filename', type=str, default='${question_id}-${title_slug}.html',
                         help='problem description filename format')
     parser.add_argument('--problem-content', type=str,
                         default='<h1>${question_id} - ${title}</h1><h2>Difficulty: ${difficulty} - ' +
@@ -70,7 +72,8 @@ def main():
 
     logging.info(args)
 
-    problem_template = Template(args.problem_filename)
+    problem_folder_name_template = Template(args.problem_folder_name)
+    problem_statement_template = Template(args.problem_filename)
     problem_content_template = Template(args.problem_content)
     submission_template = Template(args.submission_filename)
 
@@ -90,7 +93,7 @@ def main():
         os.mkdir(args.folder)
     os.chdir(args.folder)
 
-    written_problems: Set[str] = set()
+    title_slug_to_problem_folder_name: dict[str, str] = dict()
 
     for submission in leetcode.get_submissions():
         if args.only_accepted and submission.status_display != 'Accepted':
@@ -99,18 +102,20 @@ def main():
         if args.language and submission.lang not in args.language:
             continue
 
-        if not os.path.exists(submission.title_slug):
-            os.mkdir(submission.title_slug)
-        os.chdir(submission.title_slug)
+        if submission.title_slug not in title_slug_to_problem_folder_name:
+            problem_statement = leetcode.get_problem(submission.title_slug)
+            problem_folder_name = problem_folder_name_template.substitute(**problem_statement.__dict__)
+            title_slug_to_problem_folder_name[submission.title_slug] = problem_folder_name
+            if not os.path.exists(problem_folder_name):
+                os.mkdir(problem_folder_name)
+            os.chdir(problem_folder_name)
 
-        if submission.title_slug not in written_problems:
-            problem = leetcode.get_problem(submission.title_slug)
-            info_filename = problem_template.substitute(**problem.__dict__)
-            if not os.path.exists(info_filename):
-                info_file = open(info_filename, 'w+')
-                info_file.write(problem_content_template.substitute(**problem.__dict__))
-                info_file.close()
-            written_problems.add(submission.title_slug)
+            problem_statement_filename = problem_statement_template.substitute(**problem_statement.__dict__)
+            if not os.path.exists(problem_statement_filename):
+                with open(problem_statement_filename, 'w+') as problem_statement_file:
+                    problem_statement_file.write(problem_content_template.substitute(**problem_statement.__dict__))
+        else:
+            os.chdir(title_slug_to_problem_folder_name[submission.title_slug])
 
         sub_filename = submission_template.substitute(**submission.__dict__)
         if not os.path.exists(sub_filename):
