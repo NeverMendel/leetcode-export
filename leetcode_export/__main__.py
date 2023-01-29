@@ -17,8 +17,11 @@ from leetcode_export.utils import VALID_PROGRAMMING_LANGUAGES
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Export LeetCode submissions",
-        formatter_class=argparse.RawTextHelpFormatter,
+        formatter_class=lambda prog: argparse.RawTextHelpFormatter(
+            "leetcode_export", width=80
+        ),
     )
+
     parser.add_argument("--cookies", type=str, help="set LeetCode cookies")
     parser.add_argument("--folder", type=str, default=".", help="set output folder")
     parser.add_argument(
@@ -56,9 +59,13 @@ def parse_args():
         "--language",
         dest="language_unprocessed",
         type=str,
-        help="only save submissions for the specified programming languages (eg. '--language=python,python3,cpp,java,golang')\n"
-        + "supported languages: 'python', 'python3', 'c', 'cpp', 'csharp', 'java', 'kotlin', 'mysql', 'mssql', 'oraclesql',\n"
-        + "                     'javascript', 'html', 'php', 'golang', 'scala', 'pythonml', 'rust', 'ruby', 'bash', 'swift'",
+        help="save submissions for specified programming languages.\n"
+        "syntax: --language=<lang1>,<lang2>,...\n"
+        "languages: python, python3, c, cpp, csharp, java,\n"
+        "           kotlin, mysql, mssql, oraclesql, javascript,\n"
+        "           html, php, golang, scala, pythonml,\n"
+        "           rust, ruby, bash, swift\n"
+        "example: --language=python,cpp,java",
     )
     parser.add_argument(
         "-v",
