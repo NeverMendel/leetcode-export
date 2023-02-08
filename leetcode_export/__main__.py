@@ -31,6 +31,12 @@ def parse_args():
         help="problem folder name format",
     )
     parser.add_argument(
+        "--no-problem-statement-files",
+        dest="no_problem_statement_files",
+        action="store_true",
+        help="do not save problem statement files",
+    )
+    parser.add_argument(
         "--problem-statement-filename",
         type=str,
         default="${question_id}-${title_slug}.html",
@@ -54,6 +60,12 @@ def parse_args():
         dest="only_accepted",
         action="store_true",
         help="save accepted submissions only",
+    )
+    parser.add_argument(
+        "--only-latest-submission",
+        dest="only_latest_submission",
+        action="store_true",
+        help="only save the latest submission of the lang",
     )
     parser.add_argument(
         "--language",
@@ -145,6 +157,7 @@ def main():
     os.chdir(args.folder)
 
     title_slug_to_problem_folder_name: dict[str, str] = dict()
+    title_slug_to_extension: dict[str, set] = dict()
 
     for submission in leetcode.get_submissions():
         if args.only_accepted and submission.status_display != "Accepted":
@@ -152,6 +165,16 @@ def main():
 
         if args.language and submission.lang not in args.language:
             continue
+
+        if submission.title_slug in title_slug_to_extension and \
+            submission.extension in title_slug_to_extension[submission.title_slug] and \
+                args.only_latest_submission:
+            logging.info(f"Saving only the latest submission of the question {submission.title_slug} with "
+                         f"{submission.extension} extension, skipping it")
+            continue
+        else:
+            title_slug_to_extension[submission.title_slug] = set()
+        title_slug_to_extension[submission.title_slug].add(submission.extension)
 
         if submission.title_slug not in title_slug_to_problem_folder_name:
             problem_statement = leetcode.get_problem_statement(submission.title_slug)
@@ -168,7 +191,7 @@ def main():
             problem_statement_filename = problem_statement_filename_template.substitute(
                 **problem_statement.__dict__
             )
-            if not os.path.exists(problem_statement_filename):
+            if not os.path.exists(problem_statement_filename) and not args.no_problem_statement_files:
                 with open(problem_statement_filename, "w+") as problem_statement_file:
                     problem_statement_file.write(
                         problem_statement_template.substitute(
