@@ -86,7 +86,7 @@ class LeetCode(object):
             )
             return False
 
-        for (cookie_key, cookie_value) in cookie_dict.items():
+        for cookie_key, cookie_value in cookie_dict.items():
             self.session.cookies.set(cookie_key, cookie_value)
         if self.is_user_logged():
             logging.info("Cookie set successful")

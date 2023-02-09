@@ -18,7 +18,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Export LeetCode submissions",
         formatter_class=lambda prog: argparse.RawTextHelpFormatter(
-            "leetcode_export", width=80
+            "leetcode-export", width=80
         ),
     )
 

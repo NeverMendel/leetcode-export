@@ -106,7 +106,7 @@ Using the interactive menu is preferred because it will avoid storing cookies in
 The script accepts the following arguments:
 
 ```
-usage: leetcode_export [-h] [--cookies COOKIES] [--folder FOLDER]
+usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-folder-name PROBLEM_FOLDER_NAME]
                        [--problem-statement-filename PROBLEM_STATEMENT_FILENAME]
                        [--problem-statement-content PROBLEM_STATEMENT_CONTENT]

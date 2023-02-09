@@ -15,7 +15,7 @@ setup(
     description="Python script to export your LeetCode solutions",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    keywords=["leetcode", "leetcode-solutios", "leetcode-export"],
+    keywords=["leetcode", "leetcode-solutions", "leetcode-export"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
