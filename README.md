@@ -108,7 +108,7 @@ The script accepts the following arguments:
 ```
 usage: leetcode_export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-folder-name PROBLEM_FOLDER_NAME]
-                       [--no-problem-statement-files]
+                       [--no-problem-statement]
                        [--problem-statement-filename PROBLEM_STATEMENT_FILENAME]
                        [--problem-statement-content PROBLEM_STATEMENT_CONTENT]
                        [--submission-filename SUBMISSION_FILENAME]
@@ -123,7 +123,7 @@ optional arguments:
   --folder FOLDER       set output folder
   --problem-folder-name PROBLEM_FOLDER_NAME
                         problem folder name format
-  --no-problem-statement-files
+  --no-problem-statement
                         do not save problem statement files
   --problem-statement-filename PROBLEM_STATEMENT_FILENAME
                         problem statement filename format
