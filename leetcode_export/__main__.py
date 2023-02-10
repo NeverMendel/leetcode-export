@@ -31,10 +31,10 @@ def parse_args():
         help="problem folder name format",
     )
     parser.add_argument(
-        "--no-problem-statement-files",
-        dest="no_problem_statement_files",
+        "--no-problem-statement",
+        dest="no_problem_statement",
         action="store_true",
-        help="do not save problem statement files",
+        help="do not save problem statement",
     )
     parser.add_argument(
         "--problem-statement-filename",
@@ -159,6 +159,7 @@ def main():
     title_slug_to_problem_folder_name: dict[str, str] = dict()
     title_slug_to_extension: dict[str, set] = dict()
 
+    submissions = []
     for submission in leetcode.get_submissions():
         if args.only_accepted and submission.status_display != "Accepted":
             continue
@@ -166,14 +167,21 @@ def main():
         if args.language and submission.lang not in args.language:
             continue
 
-        if submission.title_slug in title_slug_to_extension and \
-            submission.extension in title_slug_to_extension[submission.title_slug] and \
-                args.only_latest_submission:
-            logging.info(f"Saving only the latest submission of the question {submission.title_slug} with "
-                         f"{submission.extension} extension, skipping it")
-            continue
-        else:
+        submissions.append(submission)
+
+    for submission in sorted(submissions, key=lambda s: s.date_formatted, reverse=True):
+        if submission.title_slug not in title_slug_to_extension:
             title_slug_to_extension[submission.title_slug] = set()
+
+        if (
+            submission.extension in title_slug_to_extension[submission.title_slug]
+            and args.only_latest_submission
+        ):
+            logging.info(
+                f"Saving only the latest submission of the question {submission.title_slug} with "
+                f"{submission.extension} extension, skipping it"
+            )
+            continue
         title_slug_to_extension[submission.title_slug].add(submission.extension)
 
         if submission.title_slug not in title_slug_to_problem_folder_name:
@@ -191,7 +199,10 @@ def main():
             problem_statement_filename = problem_statement_filename_template.substitute(
                 **problem_statement.__dict__
             )
-            if not os.path.exists(problem_statement_filename) and not args.no_problem_statement_files:
+            if (
+                not os.path.exists(problem_statement_filename)
+                and not args.no_problem_statement
+            ):
                 with open(problem_statement_filename, "w+") as problem_statement_file:
                     problem_statement_file.write(
                         problem_statement_template.substitute(
