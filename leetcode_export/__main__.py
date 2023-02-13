@@ -62,10 +62,10 @@ def parse_args():
         help="save accepted submissions only",
     )
     parser.add_argument(
-        "--only-latest-submission",
-        dest="only_latest_submission",
+        "--only-last-submission",
+        dest="only_last_submission",
         action="store_true",
-        help="only save the latest submission of the lang",
+        help="only save the last submission for each programming language",
     )
     parser.add_argument(
         "--language",
@@ -157,32 +157,40 @@ def main():
     os.chdir(args.folder)
 
     title_slug_to_problem_folder_name: dict[str, str] = dict()
-    title_slug_to_extension: dict[str, set] = dict()
+    title_slug_to_exported_languages: dict[str, set[str]] = dict()
 
-    submissions = []
+    last_submission_timestamp: Optional[int] = None
+
     for submission in leetcode.get_submissions():
+        if (
+            last_submission_timestamp is not None
+            and submission.timestamp > last_submission_timestamp
+        ):
+            logging.warning(
+                "Submissions are not in reverse chronological order, --only-last-submission flag might not work as expected if used. Please report this issue on GitHub attaching the debug.log file: https://github.com/NeverMendel/leetcode-export/issues"
+            )
+        last_submission_timestamp = submission.timestamp
+
         if args.only_accepted and submission.status_display != "Accepted":
             continue
 
         if args.language and submission.lang not in args.language:
             continue
 
-        submissions.append(submission)
-
-    for submission in sorted(submissions, key=lambda s: s.date_formatted, reverse=True):
-        if submission.title_slug not in title_slug_to_extension:
-            title_slug_to_extension[submission.title_slug] = set()
+        if submission.title_slug not in title_slug_to_exported_languages:
+            title_slug_to_exported_languages[submission.title_slug] = set()
 
         if (
-            submission.extension in title_slug_to_extension[submission.title_slug]
-            and args.only_latest_submission
+            args.only_last_submission
+            and submission.title_slug in title_slug_to_exported_languages
+            and submission.lang
+            in title_slug_to_exported_languages[submission.title_slug]
         ):
             logging.info(
-                f"Saving only the latest submission of the question {submission.title_slug} with "
-                f"{submission.extension} extension, skipping it"
+                f"The latest submission for {submission.title_slug} in {submission.lang} has already been exported, skipping this submission"
             )
             continue
-        title_slug_to_extension[submission.title_slug].add(submission.extension)
+        title_slug_to_exported_languages[submission.title_slug].add(submission.lang)
 
         if submission.title_slug not in title_slug_to_problem_folder_name:
             problem_statement = leetcode.get_problem_statement(submission.title_slug)
@@ -199,9 +207,8 @@ def main():
             problem_statement_filename = problem_statement_filename_template.substitute(
                 **problem_statement.__dict__
             )
-            if (
-                not os.path.exists(problem_statement_filename)
-                and not args.no_problem_statement
+            if not args.no_problem_statement and not os.path.exists(
+                problem_statement_filename
             ):
                 with open(problem_statement_filename, "w+") as problem_statement_file:
                     problem_statement_file.write(
