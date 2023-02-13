@@ -112,19 +112,19 @@ usage: leetcode_export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-statement-filename PROBLEM_STATEMENT_FILENAME]
                        [--problem-statement-content PROBLEM_STATEMENT_CONTENT]
                        [--submission-filename SUBMISSION_FILENAME]
-                       [--only-accepted] [--only-latest-submission]
+                       [--only-accepted] [--only-last-submission]
                        [--language LANGUAGE_UNPROCESSED] [-v] [-vv] [-V]
 
 Export LeetCode submissions
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --cookies COOKIES     set LeetCode cookies
   --folder FOLDER       set output folder
   --problem-folder-name PROBLEM_FOLDER_NAME
                         problem folder name format
   --no-problem-statement
-                        do not save problem statement files
+                        do not save problem statement
   --problem-statement-filename PROBLEM_STATEMENT_FILENAME
                         problem statement filename format
   --problem-statement-content PROBLEM_STATEMENT_CONTENT
@@ -132,8 +132,8 @@ optional arguments:
   --submission-filename SUBMISSION_FILENAME
                         submission filename format
   --only-accepted       save accepted submissions only
-  --only-latest-submission
-                        only save the latest submission of the lang
+  --only-last-submission
+                        only save the last submission for each programming language
   --language LANGUAGE_UNPROCESSED
                         save submissions for specified programming languages.
                         syntax: --language=<lang1>,<lang2>,...
