@@ -143,7 +143,7 @@ class LeetCode(object):
             and "has_next" in response_json
             and response_json["has_next"]
         ):
-            logging.info(f"Exporting submissions from {current} to {current + 20}")
+            logging.debug(f"Exporting submissions from {current} to {current + 20}")
             response_json = self.session.get(
                 SUBMISSIONS_API_URL.format(current, 20)
             ).json()
@@ -176,4 +176,7 @@ class LeetCode(object):
             current += 20
             sleep(5)  # cooldown time for get request
         if "detail" in response_json:
-            logging.warning(response_json["detail"])
+            logging.warning(
+                'LeetCode API error, detail found in response_json. response_json["detail"]: '
+                + str(response_json["detail"])
+            )

@@ -116,23 +116,31 @@ def parse_args():
     return args
 
 
-def main():
-    args = parse_args()
+def configure_logging(args):
+    logging_file_handler = logging.FileHandler("debug.log", encoding="UTF8")
+    logging_file_handler.setLevel(logging.DEBUG)
 
-    # Set logging level based on program arguments
-    level = logging.WARNING
+    logging_stream_handler = logging.StreamHandler()
+
+    # Set stream logging level based on program arguments
+    logging_stream_handler.setLevel(logging.WARNING)
     if args.verbose:
-        level = logging.INFO
+        logging_stream_handler.setLevel(logging.INFO)
     if args.extra_verbose:
-        level = logging.DEBUG
+        logging_stream_handler.setLevel(logging.DEBUG)
 
     logging.basicConfig(
-        level=level,
+        level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
-        handlers=[logging.FileHandler("debug.log"), logging.StreamHandler()],
+        handlers=[logging_file_handler, logging_stream_handler],
     )
 
-    logging.info(args)
+
+def main():
+    args = parse_args()
+    configure_logging(args)
+
+    logging.info("leetcode-export run with arguments: " + str(args))
 
     problem_folder_name_template = Template(args.problem_folder_name)
     problem_statement_filename_template = Template(args.problem_statement_filename)
@@ -153,6 +161,7 @@ def main():
 
     # Create output folder if it doesn't already exist
     if not os.path.exists(args.folder):
+        logging.info("Output folder not found, creating it")
         os.mkdir(args.folder)
     os.chdir(args.folder)
 
@@ -160,6 +169,8 @@ def main():
     title_slug_to_exported_languages: dict[str, set[str]] = dict()
 
     last_submission_timestamp: Optional[int] = None
+
+    print("Exporting LeetCode submissions...")
 
     for submission in leetcode.get_submissions():
         if (
