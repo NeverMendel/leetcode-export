@@ -183,9 +183,15 @@ def main():
         last_submission_timestamp = submission.timestamp
 
         if args.only_accepted and submission.status_display != "Accepted":
+            logging.info(
+                f"Skipping {submission.title_slug} {submission.date_formatted} because its status is '{submission.status_display}'"
+            )
             continue
 
         if args.language and submission.lang not in args.language:
+            logging.info(
+                f"Skipping {submission.title_slug} {submission.date_formatted} because its programming language is {submission.lang}"
+            )
             continue
 
         if submission.title_slug not in title_slug_to_exported_languages:
@@ -198,7 +204,7 @@ def main():
             in title_slug_to_exported_languages[submission.title_slug]
         ):
             logging.info(
-                f"The latest submission for {submission.title_slug} in {submission.lang} has already been exported, skipping this submission"
+                f"Skipping {submission.title_slug} {submission.date_formatted} in {submission.lang} because a more recent submission has already been exported"
             )
             continue
         title_slug_to_exported_languages[submission.title_slug].add(submission.lang)
