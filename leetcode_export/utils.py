@@ -27,6 +27,7 @@ VALID_PROGRAMMING_LANGUAGES = [
 FILE_EXTENSIONS = {
     "python": "py",
     "python3": "py",
+    "pythondata": "pd.py",
     "c": "c",
     "cpp": "cpp",
     "csharp": "cs",
