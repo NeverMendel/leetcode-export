@@ -4,6 +4,7 @@ from typing import Dict
 VALID_PROGRAMMING_LANGUAGES = [
     "python",
     "python3",
+    "pythondata",
     "c",
     "cpp",
     "csharp",
