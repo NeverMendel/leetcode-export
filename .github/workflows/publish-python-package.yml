@@ -1,9 +1,6 @@
 name: Publish Python Package
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: [push]
 
 jobs:
   publish-package:
@@ -20,10 +17,10 @@ jobs:
           echo ::set-output name=version::${tag:1}
 
       - name: Install dependencies
-        run: python3 -m pip install setuptools wheel twine
+        run: python3 -m pip install --upgrade build twine
 
       - name: Build project
-        run: python3 setup.py sdist bdist_wheel
+        run: python3 -m build
 
       - name: Check build
         run: python3 -m twine check dist/*
@@ -38,6 +35,3 @@ jobs:
           echo expected=\"$expected\"
           echo actual=\"$actual\"
           [[ $expected == $actual ]]
-
-      - name: Publish project
-        run: python3 -m twine upload dist/* -u ${{ secrets.PYPY_USERNAME }} -p ${{ secrets.PYPY_PASSWORD }} --non-interactive
