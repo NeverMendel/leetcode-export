@@ -26,7 +26,7 @@ jobs:
         run: python3 -m build
 
       - name: Remove deprecated egg file
-        run: rm dist/*.egg
+        run: rm -f dist/*.egg
 
       - name: Check build
         run: python3 -m twine check dist/*
