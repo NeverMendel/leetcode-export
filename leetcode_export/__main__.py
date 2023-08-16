@@ -73,10 +73,10 @@ def parse_args():
         type=str,
         help="save submissions for specified programming languages.\n"
         "syntax: --language=<lang1>,<lang2>,...\n"
-        "languages: python, python3, c, cpp, csharp, java,\n"
-        "           kotlin, mysql, mssql, oraclesql, javascript,\n"
-        "           html, php, golang, scala, pythonml,\n"
-        "           rust, ruby, bash, swift, pythondata\n"
+        "languages: python, python3, pythondata, c, cpp,\n"
+        "           csharp, java, kotlin, mysql, mssql,\n"
+        "           oraclesql, javascript, html, php, golang,\n"
+        "           scala, pythonml, rust, ruby, bash, swift\n"
         "example: --language=python,cpp,java",
     )
     parser.add_argument(
