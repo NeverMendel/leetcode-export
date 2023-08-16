@@ -4,6 +4,7 @@ from typing import Dict
 VALID_PROGRAMMING_LANGUAGES = [
     "python",
     "python3",
+    "pythondata",
     "c",
     "cpp",
     "csharp",
@@ -27,6 +28,7 @@ VALID_PROGRAMMING_LANGUAGES = [
 FILE_EXTENSIONS = {
     "python": "py",
     "python3": "py",
+    "pythondata": "pd.py",
     "c": "c",
     "cpp": "cpp",
     "csharp": "cs",
