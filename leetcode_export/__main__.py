@@ -3,6 +3,7 @@ LeetCode Export.
 
 Export your LeetCode submissions and related problem statements.
 """
+
 import argparse
 import logging
 import os
@@ -214,9 +215,9 @@ def main():
             problem_folder_name = problem_folder_name_template.substitute(
                 **problem_statement.__dict__
             )
-            title_slug_to_problem_folder_name[
-                submission.title_slug
-            ] = problem_folder_name
+            title_slug_to_problem_folder_name[submission.title_slug] = (
+                problem_folder_name
+            )
             if not os.path.exists(problem_folder_name):
                 os.mkdir(problem_folder_name)
             os.chdir(problem_folder_name)

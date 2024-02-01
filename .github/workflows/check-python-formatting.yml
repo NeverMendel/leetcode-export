@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Check file formatting with Black
-        uses: psf/black@stable
-        with:
-          options: "--check --verbose"
+      - name: Check file formatting
+        run: |
+          pip install black
+          black --check .
