@@ -77,7 +77,8 @@ def parse_args():
         "languages: python, python3, pythondata, c, cpp,\n"
         "           csharp, java, kotlin, mysql, mssql,\n"
         "           oraclesql, javascript, html, php, golang,\n"
-        "           scala, pythonml, rust, ruby, bash, swift\n"
+        "           scala, pythonml, rust, ruby, bash, swift,\n"
+        "           typescript, elixir, erlang, racket, dart\n"
         "example: --language=python,cpp,java",
     )
     parser.add_argument(
