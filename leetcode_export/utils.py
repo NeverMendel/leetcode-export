@@ -23,6 +23,11 @@ VALID_PROGRAMMING_LANGUAGES = [
     "ruby",
     "bash",
     "swift",
+    "typescript",
+    "elixir",
+    "erlang",
+    "racket",
+    "dart",
 ]
 
 FILE_EXTENSIONS = {
@@ -47,6 +52,11 @@ FILE_EXTENSIONS = {
     "ruby": "rb",
     "bash": "sh",
     "swift": "swift",
+    "typescript": "ts",
+    "elixir": "ex",
+    "erlang": "erl",
+    "racket": "rkt",
+    "dart": "dart",
 }
 
 SPECIAL_CHARACTERS_FILENAME = ["/", "\\", ":", "*", "?", '"', '"', "<", ">", "|"]
