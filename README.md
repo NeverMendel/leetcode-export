@@ -2,6 +2,8 @@
 
 Python script and Docker image to export your LeetCode submissions.
 
+If you find LeetCode Export helpful, please consider giving it a star ⭐️. Your support helps me gauge its usage and motivates further development.
+
 ## 📝 Table of Contents
 
 - [DISCLAIMER](#DISCLAIMER)
