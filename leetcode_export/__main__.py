@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument(
         "--problem-statement-filename",
         type=str,
-        default="${question_id}-${title_slug}.html",
+        default="${question_id}-${title_slug}.md",
         help="problem statement filename format",
     )
     parser.add_argument(
