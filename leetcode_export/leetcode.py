@@ -11,15 +11,16 @@ import requests
 
 from leetcode_export.leetcode_graphql import GRAPHQL_URL, question_detail_json, Problem
 from leetcode_export.leetcode_rest import (
+    BASE_URL,
     LOGIN_URL,
     SUBMISSIONS_API_URL,
     Submission,
-    BASE_URL,
 )
 from leetcode_export.utils import (
+    dict_camelcase_to_snakecase,
     language_to_extension,
     remove_special_characters,
-    dict_camelcase_to_snakecase,
+    REQUEST_HEADERS,
 )
 
 
@@ -27,6 +28,7 @@ class LeetCode(object):
     def __init__(self):
         logging.debug("LeetCode class instantiated")
         self.session = requests.Session()
+        self.session.headers.update(REQUEST_HEADERS)
         self.user_logged = False
         self.user_logged_expiration = datetime.datetime.now()
 
@@ -104,6 +106,7 @@ class LeetCode(object):
         cookie_dict = self.session.cookies.get_dict()
         if "csrftoken" in cookie_dict and "LEETCODE_SESSION" in cookie_dict:
             get_request = self.session.get(SUBMISSIONS_API_URL.format(0, 1))
+            logging.debug(get_request.text)
             sleep(1)  # cooldown time for get request
             if "detail" not in get_request.json():
                 logging.debug("User is logged in")
@@ -145,9 +148,9 @@ class LeetCode(object):
             and response_json["has_next"]
         ):
             logging.debug(f"Exporting submissions from {current} to {current + 20}")
-            response_json = self.session.get(
-                SUBMISSIONS_API_URL.format(current, 20)
-            ).json()
+            response = self.session.get(SUBMISSIONS_API_URL.format(current, 20))
+            logging.debug(response.content)
+            response_json = response.json()
             if "submissions_dump" in response_json:
                 for submission_dict in response_json["submissions_dump"]:
                     submission_dict["runtime"] = submission_dict["runtime"].replace(

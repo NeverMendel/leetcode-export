@@ -25,7 +25,7 @@ This script uses LeetCode REST and GraphQL APIs to download all your LeetCode su
 
 Before running the script, make sure that python3 is installed in your system.
 
-If you prefer, you can use the Docker image to download LeetCode submissions. For further instructions read the
+If you prefer, you can use the Docker image to download LeetCode submissions. For more information read the
 section [Docker Image](#docker-image).
 
 ## 🏁 Getting started <a name="getting-started"></a>

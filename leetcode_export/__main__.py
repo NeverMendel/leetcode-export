@@ -157,7 +157,7 @@ def main():
 
     if not leetcode.set_cookies(cookies):
         logging.error(
-            "Cookies not valid. Copy them from the Network tab of your browser by clicking on any leetcode.com request and going in Request Headers > cookie. Check README.md file for further information"
+            "Cookies not valid. Copy them from the Network tab of your browser by clicking on any leetcode.com request and going in Request Headers > cookie. Check README.md file for more information"
         )
         exit(1)
 
