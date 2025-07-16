@@ -1,0 +1,446 @@
+import telebot
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
+import re
+from datetime import datetime
+import csv
+import os
+
+TOKEN = '8083186134:AAGQrnQy0xph9kSImmI5OXHWp7hatWszzLY'
+ADMIN_CHAT_ID = 1712853053
+MONOBANK_CARD = "4441 1110 2811 6410"
+MY_TELEGRAM_USERNAME = "@piec0_0eace"
+REVIEW_CHANNEL_ID = '@piec_eace_Shop'
+
+bot = telebot.TeleBot(TOKEN)
+
+user_carts = {}
+cancelled_carts = {}
+order_counter = {}
+orders_db = {}
+reviews_db = {}
+
+category_items = {
+    "🛡 Броня": {
+        "Шлем 6": "5 грн♕", "Броня 6": "5 грн♕",
+        "Кобра шлем 6": "10 грн♕", "Кобра броня 6": "10 грн♕",
+        "Сталик шлем 6": "10 грн♕", "Сталик броня 6": "10 грн♕",
+        "Рюкзак 6": "5 грн♕"
+    },
+    "🔫 Зброя": {
+        "МК14 виш.": "5 грн♕", "МК14 кб.": "10 грн♕",
+        "МК14 сф.": "10 грн♕", "МГ3 виш.": "10 грн♕"
+    },
+    "🛒 Сети": {
+        "Сет 'Еліта'": "20 грн♕", "Сет 'Герой'": "35 грн♕", "Сет 'Легенда'": "35 грн♕"
+    },
+    "🆕 Супроводи": {
+        "Звичайний на 5 карту": "50 грн♕", "По тіпам на 5 карту": "125 грн♕",
+        "VIP на 5 карту": "175 грн♕", "Звичайний на 7 карту": "75 грн♕",
+        "По тіпам на 7 карту": "125 грн♕", "VIP на 7 карту": "200 грн♕",
+        "VIP GOLD": "250 грн♕"
+    },
+    "💸 Буст": {
+        "Білети 20шт": "200 грн", "Білети 50шт": "500 грн", "Білети 100шт": "900 грн",
+        "Баланс 20 млн": "125 грн", "Баланс 50 млн": "300 грн", "Баланс 100 млн": "500 грн",
+        "Баланс 500 млн": "2100 грн", "Баланс 1 млрд": "4000 грн",
+        "VIP Баланс 20 млн": "200 грн", "VIP Баланс 50 млн": "400 грн",
+        "VIP Баланс 100 млн": "700 грн", "VIP Баланс 500 млн": "3250 грн",
+        "VIP Баланс 1 млрд": "6500 грн"
+    }
+}
+
+status_map = {
+    'pending': '⏳ Очікує',
+    'in_progress': '🚧 Виконується',
+    'done': '✅ Виконано',
+    'rejected': '❌ Відхилено',
+    'processing': '🚧 Виконується', 
+    'completed': '✅ Виконано',     
+    'cancelled': '❌ Відхилено'    
+}
+
+# Підрахунок вартості
+def parse_price(price_text):
+
+    numbers = re.findall(r'\d+', price_text)
+    return int(numbers[0]) if numbers else 0
+
+def calculate_total(cart):
+    return sum(parse_price(item['price']) for item in cart)
+
+# /start
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    for category in category_items:
+        markup.add(KeyboardButton(category))
+    markup.add(KeyboardButton("🛒 Кошик"), KeyboardButton("📦 Мої замовлення"))
+    bot.send_message(message.chat.id, "👋 Ласкаво просимо! Обери категорію:", reply_markup=markup)
+
+# Категорії
+@bot.message_handler(func=lambda m: m.text in category_items)
+def show_items(message):
+    markup = InlineKeyboardMarkup()
+    for item, price in category_items[message.text].items():
+        markup.add(InlineKeyboardButton(f"{item} - {price}", callback_data=f"add:{item}"))
+    bot.send_message(message.chat.id, f"🔽 Обери товар у категорії {message.text}:", reply_markup=markup)
+
+# Додати в кошик
+@bot.callback_query_handler(func=lambda call: call.data.startswith("add:"))
+def add_to_cart(call):
+    item = call.data.split(":")[1]
+    price = None
+    for cat in category_items:
+        if item in category_items[cat]:
+            price = category_items[cat][item]
+            break
+    if not price:
+        bot.answer_callback_query(call.id, "❌ Не знайдено")
+        return
+    user_carts.setdefault(call.from_user.id, []).append({"item": item, "price": price})
+    bot.answer_callback_query(call.id, f"✅ {item} додано у кошик")
+
+# Кошик
+@bot.message_handler(func=lambda m: m.text == "🛒 Кошик")
+def view_cart(message):
+    cart = user_carts.get(message.from_user.id, [])
+    if not cart:
+        bot.send_message(message.chat.id, "🛒 Ваш кошик порожній")
+        return
+    total = calculate_total(cart)
+
+    text = "🛒 Ваші товари:\n" + "\n".join([f"- {i['item']} ({i['price']})" for i in cart]) + f"\n\n💰 Всього: {total} грн"
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton("✅ Оформити замовлення", callback_data="checkout"))
+    markup.add(InlineKeyboardButton("🗑 Очистити кошик", callback_data="clearcart"))
+    bot.send_message(message.chat.id, text, reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data == "clearcart")
+def clear_cart(call):
+    uid = call.from_user.id
+
+    user_carts[uid] = []
+    bot.answer_callback_query(call.id, "🗑 Кошик очищено")
+
+# Оформити замовлення
+@bot.callback_query_handler(func=lambda call: call.data == "checkout")
+def ask_player_id(call):
+
+    cart = user_carts.get(call.from_user.id, [])
+    if not cart:
+        bot.answer_callback_query(call.id, "❌ Ваш кошик порожній. Додайте товари перед оформленням.")
+        return
+
+    bot.send_message(call.from_user.id, "🎮 Введіть ID гравця (або нік):")
+
+    bot.register_next_step_handler(call.message, complete_order)
+
+def complete_order(message):
+    user_id = message.from_user.id
+    cart = user_carts.get(user_id, [])
+    if not cart:
+        bot.send_message(user_id, "❌ Кошик порожній. Будь ласка, додайте товари перед оформленням.")
+        return
+
+    total = calculate_total(cart)
+    order_counter.setdefault(user_id, 0)
+    order_counter[user_id] += 1
+    counter = order_counter[user_id]
+    order_id = f"{user_id}_{counter}"
+
+    order = {
+        "order_id": order_id,
+        "user_id": user_id,
+        "username": message.from_user.username if message.from_user.username else "N/A", 
+        "player_id": message.text,
+        "cart": cart,
+        "total": total,
+        "status": "pending" 
+    }
+    orders_db[order_id] = order
+    user_carts[user_id] = [] 
+
+    admin_markup = InlineKeyboardMarkup()
+    admin_markup.add(
+        InlineKeyboardButton("🚧 Виконується", callback_data=f"progress:{order_id}"),
+        InlineKeyboardButton("✅ Виконано", callback_data=f"done:{order_id}"), 
+        InlineKeyboardButton("❌ Відхилити", callback_data=f"reject:{order_id}")
+    )
+    order_text = f"📦 НОВЕ ЗАМОВЛЕННЯ #{order_id}\n👤 @{order['username']} ({user_id})\n🎮 ID гравця: {order['player_id']}\n💰 Сума: {total} грн\n🛒 Товари:\n" + "\n".join([f"- {i['item']} ({i['price']})" for i in cart])
+    bot.send_message(ADMIN_CHAT_ID, order_text, reply_markup=admin_markup)
+    bot.send_message(user_id, f"✅ Замовлення #{order_id} створено!\n💳 Оплата на карту: {MONOBANK_CARD}\nЗвʼяжіться з продавцем: {MY_TELEGRAM_USERNAME}")
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("done:", "progress:", "reject:")))
+def update_status_legacy(call):
+    action, order_id = call.data.split(":")
+    if order_id in orders_db:
+
+        new_status = {
+            'done': 'completed',
+            'progress': 'processing',
+            'reject': 'cancelled'
+        }[action]
+        orders_db[order_id]['status'] = new_status
+        status_text = status_map[new_status]
+        bot.send_message(orders_db[order_id]['user_id'], f"ℹ️ Статус замовлення #{order_id} оновлено: {status_text}")
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+    else:
+        bot.answer_callback_query(call.id, "❌ Замовлення не знайдено")
+
+# /myorders
+@bot.message_handler(commands=['myorders', 'мої_замовлення']) 
+def my_orders(message):
+    uid = message.from_user.id
+
+    my = [v for v in orders_db.values() if v.get('user_id') == uid]
+    if not my:
+        bot.send_message(uid, "📦 У вас немає замовлень.")
+        return
+
+    for o in my:
+        status_display = status_map.get(o.get('status', 'unknown'), 'Невідомий статус')
+        bot.send_message(uid, f"#{o['order_id']} - {status_display} - {o['total']} грн")
+
+
+@bot.message_handler(commands=['findorder', 'знайти_замовлення'])
+def find_order(message):
+    if message.chat.id != ADMIN_CHAT_ID:
+        return
+    msg = bot.send_message(message.chat.id, "🔍 Введи ID замовлення:")
+    bot.register_next_step_handler(msg, show_order_info)
+
+def show_order_info(message):
+    order_id = message.text.strip()
+    order = orders_db.get(order_id)
+    if not order:
+        bot.send_message(message.chat.id, "❌ Не знайдено замовлення з таким ID.")
+        return
+
+    text = f"📦 ЗАМОВЛЕННЯ #{order_id}\n👤 @{order['username']} ({order['user_id']})\n🎮 ID гравця: {order['player_id']}\n💰 Сума: {order['total']} грн\nСтатус: {status_map[order['status']]}\nТовари:\n" + "\n".join([f"- {i['item']} ({i['price']})" for i in order['cart']])
+    bot.send_message(message.chat.id, text)
+
+# /allorders (Admin only)
+@bot.message_handler(commands=['allorders', 'всі_замовлення'])
+def all_orders(message):
+    if message.chat.id != ADMIN_CHAT_ID:
+        return
+    if not orders_db:
+        bot.send_message(message.chat.id, "❌ Немає замовлень.")
+        return
+
+    for order in orders_db.values():
+        status_display = status_map.get(order.get('status', 'unknown'), 'Невідомий статус')
+        bot.send_message(message.chat.id, f"#{order['order_id']} - {status_display} - {order['total']} грн")
+
+# /exportorders (Admin only)
+@bot.message_handler(commands=['exportorders', 'експорт_замовлень'])
+def export_orders(message):
+    if message.chat.id != ADMIN_CHAT_ID:
+        return
+    filename = "orders_export.csv"
+    try:
+        with open(filename, "w", newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['order_id', 'user_id', 'username', 'player_id', 'total', 'status', 'items']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for order in orders_db.values():
+                writer.writerow({
+                    'order_id': order.get('order_id', 'N/A'),
+                    'user_id': order.get('user_id', 'N/A'),
+                    'username': order.get('username', 'N/A'),
+                    'player_id': order.get('player_id', 'N/A'),
+                    'total': order.get('total', 0),
+                    'status': order.get('status', 'N/A'),
+                    'items': "; ".join([item.get('item', 'N/A') for item in order.get('cart', [])])
+                })
+        bot.send_document(message.chat.id, InputFile(filename))
+    except Exception as e:
+        bot.send_message(message.chat.id, f"❌ Помилка при експорті замовлень: {e}")
+    finally:
+        if os.path.exists(filename):
+            os.remove(filename)
+
+# /ordersbyuser (Admin only)
+@bot.message_handler(commands=['ordersbyuser', 'замовлення_по_користувачу'])
+def orders_by_user(message):
+    if message.chat.id != ADMIN_CHAT_ID:
+        return
+    msg = bot.send_message(message.chat.id, "🔎 Введи user_id для перегляду замовлень:")
+    bot.register_next_step_handler(msg, show_orders_for_user)
+
+def show_orders_for_user(message):
+    try:
+        uid = int(message.text.strip())
+        user_orders = [v for v in orders_db.values() if v.get('user_id') == uid]
+        if not user_orders:
+            bot.send_message(message.chat.id, "❌ Замовлення не знайдені для цього користувача.")
+            return
+        for order in user_orders:
+            status_display = status_map.get(order.get('status', 'unknown'), 'Невідомий статус')
+            bot.send_message(message.chat.id, f"#{order['order_id']} ({status_display}) - {order['total']} грн")
+    except ValueError: 
+        bot.send_message(message.chat.id, "❌ Некоректний user_id. Будь ласка, введіть числове значення.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"❌ Виникла помилка: {e}")
+
+
+# Адмін-панель
+@bot.message_handler(commands=['admin', 'адмін'])
+def admin_panel(message):
+    if message.chat.id != ADMIN_CHAT_ID:
+        bot.send_message(message.chat.id, "⛔ Доступ заборонено.")
+        return
+
+    markup = InlineKeyboardMarkup(row_width=2)
+    markup.add(
+        InlineKeyboardButton("📦 Всі замовлення", callback_data="admin_allorders"),
+        InlineKeyboardButton("🔎 Пошук замовлення", callback_data="admin_findorder"),
+        InlineKeyboardButton("👤 За user ID", callback_data="admin_ordersbyuser"),
+        InlineKeyboardButton("📤 Експорт CSV", callback_data="admin_exportorders")
+    )
+    bot.send_message(message.chat.id, "🛠 <b>Адмін-панель</b>\nОберіть дію:", reply_markup=markup, parse_mode="HTML")
+
+# Обробка кнопок з адмін-панелі
+@bot.callback_query_handler(func=lambda call: call.data.startswith("admin_"))
+def handle_admin_action(call):
+    if call.message.chat.id != ADMIN_CHAT_ID:
+        bot.answer_callback_query(call.id, "⛔ Доступ заборонено.")
+        return
+
+    action = call.data
+
+    if action == "admin_allorders":
+        if not orders_db:
+            bot.send_message(call.message.chat.id, "❌ Немає замовлень.")
+            bot.answer_callback_query(call.id)
+            return
+
+        for order_id, order in orders_db.items():
+            status_display = status_map.get(order.get('status', 'unknown'), 'Невідомий статус')
+            msg = f"🆔 {order_id} — {status_display} — {order.get('total', 0)} грн" 
+            markup = InlineKeyboardMarkup()
+
+            if order['status'] == "pending":
+                markup.add(
+                    InlineKeyboardButton("🚧 Виконується", callback_data=f"confirm_{order_id}"),
+                    InlineKeyboardButton("❌ Відхилити", callback_data=f"reject_{order_id}")
+                )
+            elif order['status'] == "processing":
+                markup.add(
+                    InlineKeyboardButton("✅ Виконано", callback_data=f"complete_{order_id}")
+                )
+            bot.send_message(call.message.chat.id, msg, reply_markup=markup)
+
+    elif action == "admin_findorder":
+        msg = bot.send_message(call.message.chat.id, "🔎 Введи ID замовлення:")
+        bot.register_next_step_handler(msg, show_order_info)
+
+    elif action == "admin_ordersbyuser":
+        msg = bot.send_message(call.message.chat.id, "🧑 Введи user_id:")
+        bot.register_next_step_handler(msg, show_orders_for_user) 
+
+    elif action == "admin_exportorders":
+        export_orders(call.message) 
+
+    bot.answer_callback_query(call.id)
+
+# Обробка статусів: підтвердження, виконання, відхилення
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("confirm_", "reject_", "complete_")))
+def handle_order_status_change(call):
+    if call.message.chat.id != ADMIN_CHAT_ID:
+        bot.answer_callback_query(call.id, "⛔ Доступ заборонено.")
+        return
+
+    action, order_id = call.data.split("_", 1)
+    order = orders_db.get(order_id)
+
+    if not order:
+        bot.answer_callback_query(call.id, "❌ Замовлення не знайдено")
+        return
+
+    user_id = order["user_id"]
+
+    if action == "confirm":
+        order["status"] = "processing"
+        markup = InlineKeyboardMarkup().add(
+            InlineKeyboardButton("✅ Виконано", callback_data=f"complete_{order_id}")
+        )
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=markup)
+        bot.send_message(user_id, f"🚧 Ваше замовлення *{order_id}* зараз виконується.", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"🚧 Статус {order_id} змінено на *Виконується*.", parse_mode="Markdown")
+
+    elif action == "complete":
+        order["status"] = "completed"
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+        bot.send_message(user_id, f"✅ Ваше замовлення *{order_id}* виконано!", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"✅ Статус {order_id} змінено на *Виконано*.", parse_mode="Markdown")
+        send_review_rating_request(user_id, order_id)
+
+    elif action == "reject":
+        order["status"] = "cancelled"
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+        bot.send_message(user_id, f"❌ Ваше замовлення *{order_id}* відхилено.", parse_mode="Markdown")
+        bot.send_message(call.message.chat.id, f"❌ Статус {order_id} змінено на *Відхилено*.", parse_mode="Markdown")
+
+    bot.answer_callback_query(call.id) 
+
+# ⭐ Запит на зірки
+def send_review_rating_request(user_id, order_id):
+    markup = InlineKeyboardMarkup(row_width=5)
+    buttons = [InlineKeyboardButton(f"{i}⭐", callback_data=f"reviewstars_{order_id}_{i}") for i in range(1, 6)]
+    markup.add(*buttons)
+    bot.send_message(
+        user_id,
+        f"✅ Ваше замовлення #{order_id} виконано!\n\n📊 Будь ласка, оцініть сервіс:",
+        reply_markup=markup
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("reviewstars_"))
+def handle_review_stars(call):
+    try:
+        _, order_id, stars = call.data.split("_", 2)
+        stars = int(stars)
+        user_id = call.from_user.id
+        reviews_db[order_id] = {"user_id": user_id, "stars": stars, "text": ""}
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+        bot.send_message(
+            call.message.chat.id,
+            f"⭐ Ви поставили {stars} з 5. Тепер напишіть свій відгук текстом у відповіді:"
+        )
+        bot.register_next_step_handler(call.message, lambda msg: save_review_text(msg, order_id, stars))
+    except Exception as e:
+        print(f"[review stars error] {e}")
+        bot.answer_callback_query(call.id, "❌ Сталася помилка. Спробуйте ще раз.")
+
+# 💬 Збереження тексту + публікація
+def save_review_text(message, order_id, stars):
+    text = message.text
+    user_id = message.from_user.id
+
+
+    if order_id in reviews_db:
+        reviews_db[order_id]["text"] = text
+    else:
+        reviews_db[order_id] = {"user_id": user_id, "stars": stars, "text": text}
+
+    bot.send_message(message.chat.id, "✅ Дякуємо за ваш відгук!")
+    bot.send_message(
+        ADMIN_CHAT_ID,
+        f"💬 Відгук по замовленню #{order_id} від <a href='tg://user?id={user_id}'>покупця</a>:\n\n"
+        f"⭐ {stars} з 5\n{text}",
+        parse_mode="HTML"
+    )
+
+    try:
+        star_line = "⭐" * stars
+        bot.send_message(
+            REVIEW_CHANNEL_ID,
+            f"🛒 <b>Новий відгук</b>\n\n{star_line}\n{text}",
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        print(f"[publish review error] {e}")
+        bot.send_message(ADMIN_CHAT_ID, f"❌ Помилка при публікації відгуку в канал: {e}")
+
+print("🤖 Бот запущено")
+bot.polling(none_stop=True)
