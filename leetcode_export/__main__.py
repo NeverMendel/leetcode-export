@@ -166,6 +166,7 @@ def main():
         logging.info("Output folder not found, creating it")
         os.mkdir(args.folder)
     os.chdir(args.folder)
+    base_folder = os.getcwd()
 
     title_slug_to_problem_folder_name: dict[str, str] = dict()
     title_slug_to_exported_languages: dict[str, set[str]] = dict()
@@ -220,7 +221,7 @@ def main():
                 problem_folder_name
             )
             if not os.path.exists(problem_folder_name):
-                os.mkdir(problem_folder_name)
+                os.makedirs(problem_folder_name, exist_ok=True)
             os.chdir(problem_folder_name)
 
             problem_statement_filename = problem_statement_filename_template.substitute(
@@ -251,7 +252,7 @@ def main():
                 f"{submission.title_slug}/{submission_filename} already exists, skipping it"
             )
 
-        os.chdir("..")
+        os.chdir(base_folder)
 
 
 if __name__ == "__main__":
