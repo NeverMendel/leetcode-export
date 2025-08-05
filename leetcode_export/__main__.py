@@ -8,7 +8,7 @@ import argparse
 import logging
 import os
 from string import Template
-from typing import Set
+from typing import Optional, Set
 
 from leetcode_export._version import __version__
 from leetcode_export.leetcode import LeetCode
@@ -96,6 +96,11 @@ def parse_args():
         help="enable more verbose logging details",
     )
     parser.add_argument(
+        "--checkpoint-file",
+        type=str,
+        help="path to checkpoint file for incremental backups (stores Unix timestamp of newest processed submission)",
+    )
+    parser.add_argument(
         "-V",
         "--version",
         action="version",
@@ -116,6 +121,45 @@ def parse_args():
         args.language = None
 
     return args
+
+
+def load_checkpoint(checkpoint_file: str) -> Optional[int]:
+    """
+    Load timestamp from checkpoint file
+    :param checkpoint_file: path to checkpoint file
+    :return: Unix timestamp or None if file doesn't exist or is invalid
+    """
+    if not os.path.exists(checkpoint_file):
+        logging.info(f"Checkpoint file {checkpoint_file} does not exist")
+        response = input(f"Create checkpoint file at {checkpoint_file} and start from beginning? (y/N): ")
+        if response.lower() in ['y', 'yes']:
+            write_checkpoint(checkpoint_file, 0)
+            return 0
+        else:
+            logging.error("Checkpoint file required for incremental backup. Exiting.")
+            exit(1)
+    try:
+        with open(checkpoint_file, 'r') as f:
+            timestamp = int(f.read().strip())
+            logging.info(f"Loaded checkpoint timestamp: {timestamp}")
+            return timestamp
+    except (ValueError, IOError) as e:
+        logging.error(f"Failed to read checkpoint file {checkpoint_file}: {e}")
+        exit(1)
+
+
+def write_checkpoint(checkpoint_file: str, timestamp: int) -> None:
+    """
+    Write timestamp to checkpoint file
+    :param checkpoint_file: path to checkpoint file
+    :param timestamp: Unix timestamp to write
+    """
+    try:
+        with open(checkpoint_file, 'w') as f:
+            f.write(str(timestamp))
+        logging.debug(f"Updated checkpoint to timestamp: {timestamp}")
+    except IOError as e:
+        logging.error(f"Failed to write checkpoint file {checkpoint_file}: {e}")
 
 
 def configure_logging(args):
@@ -173,9 +217,20 @@ def main():
 
     last_submission_timestamp: Optional[int] = None
 
+    # Handle checkpoint functionality
+    checkpoint_timestamp: Optional[int] = None
+    newest_processed_timestamp: Optional[int] = None
+    submissions_processed = 0
+
+    if args.checkpoint_file:
+        checkpoint_timestamp = load_checkpoint(args.checkpoint_file)
+        logging.info(f"Using checkpoint file: {args.checkpoint_file}")
+        if checkpoint_timestamp > 0:
+            logging.info(f"Only processing submissions newer than timestamp {checkpoint_timestamp}")
+
     print("Exporting LeetCode submissions...")
 
-    for submission in leetcode.get_submissions():
+    for submission in leetcode.get_submissions(since_timestamp=checkpoint_timestamp):
         if (
             last_submission_timestamp is not None
             and submission.timestamp > last_submission_timestamp
@@ -242,17 +297,35 @@ def main():
         submission_filename = submission_filename_template.substitute(
             **submission.__dict__
         )
+        submission_was_written = False
         if not os.path.exists(submission_filename):
             logging.info(f"Writing {submission.title_slug}/{submission_filename}")
             sub_file = open(submission_filename, "w+")
             sub_file.write(submission.code)
             sub_file.close()
+            submission_was_written = True
         else:
             logging.info(
                 f"{submission.title_slug}/{submission_filename} already exists, skipping it"
             )
 
+        # Track processing for checkpoint updates
+        if submission_was_written:
+            submissions_processed += 1
+            if newest_processed_timestamp is None or submission.timestamp > newest_processed_timestamp:
+                newest_processed_timestamp = submission.timestamp
+
         os.chdir(base_folder)
+
+    # Final summary and checkpoint update
+    if args.checkpoint_file:
+        if submissions_processed > 0:
+            # Only update checkpoint after successful completion of all processing
+            write_checkpoint(args.checkpoint_file, newest_processed_timestamp)
+            print(f"Processed {submissions_processed} new submissions")
+            print(f"Updated checkpoint to timestamp: {newest_processed_timestamp}")
+        else:
+            logging.info("No new submissions found since last checkpoint")
 
 
 if __name__ == "__main__":
