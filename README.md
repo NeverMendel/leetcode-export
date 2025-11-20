@@ -115,7 +115,8 @@ usage: leetcode-export [-h] [--cookies COOKIES] [--folder FOLDER]
                        [--problem-statement-content PROBLEM_STATEMENT_CONTENT]
                        [--submission-filename SUBMISSION_FILENAME]
                        [--only-accepted] [--only-last-submission]
-                       [--language LANGUAGE_UNPROCESSED] [-v] [-vv] [-V]
+                       [--language LANGUAGE_UNPROCESSED]
+                       [--checkpoint-file CHECKPOINT_FILE] [-v] [-vv] [-V]
 
 Export LeetCode submissions
 
@@ -144,10 +145,48 @@ options:
                                    html, php, golang, scala, pythonml,
                                    rust, ruby, bash, swift
                         example: --language=python,cpp,java
+  --checkpoint-file CHECKPOINT_FILE
+                        path to checkpoint file for incremental backups (stores Unix 
+                        timestamp of newest processed submission)
   -v, --verbose         enable verbose logging details
   -vv, --extra-verbose  enable more verbose logging details
   -V, --version         show program's version number and exit
 ```
+
+### Incremental Backups
+
+The `--checkpoint-file` option enables incremental backups by storing the timestamp of the newest processed submission. This allows you to run the script multiple times and only download new submissions since the last run, making it much faster for regular backups.
+
+#### How it works
+
+1. **First run**: If the checkpoint file doesn't exist, the script will prompt you to create it and perform a full backup
+2. **Subsequent runs**: The script reads the timestamp from the checkpoint file and only processes submissions newer than that timestamp
+3. **Automatic updates**: The checkpoint file is updated automatically at the end of a successful run with the timestamp of the newest submission processed
+
+#### Example usage
+
+```bash
+# First run - full backup
+leetcode-export \
+  --folder ./submissions \
+  --checkpoint-file ~/.leetcode_checkpoint \
+  --only-accepted \
+  --cookies "your_cookies_here"
+
+# Subsequent runs - only new submissions
+leetcode-export \
+  --folder ./submissions \
+  --checkpoint-file ~/.leetcode_checkpoint \
+  --only-accepted \
+  --cookies "your_cookies_here"
+```
+
+#### Important notes
+
+- The checkpoint file stores a Unix timestamp of the newest processed submission
+- Only submissions that are actually written to disk (not filtered out) update the checkpoint
+- If no new submissions are found, the checkpoint file remains unchanged
+- The script will stop early when it reaches submissions older than the checkpoint, making it very efficient
 
 ### Problem template arguments
 
