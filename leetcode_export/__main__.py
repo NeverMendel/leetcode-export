@@ -229,7 +229,7 @@ def main():
             if not args.no_problem_statement and not os.path.exists(
                 problem_statement_filename
             ):
-                with open(problem_statement_filename, "w+") as problem_statement_file:
+                with open(problem_statement_filename, "w+", encoding='utf-8') as problem_statement_file:
                     problem_statement_file.write(
                         problem_statement_template.substitute(
                             **problem_statement.__dict__
@@ -243,7 +243,7 @@ def main():
         )
         if not os.path.exists(submission_filename):
             logging.info(f"Writing {submission.title_slug}/{submission_filename}")
-            sub_file = open(submission_filename, "w+")
+            sub_file = open(submission_filename, "w+", encoding='utf-8')
             sub_file.write(submission.code)
             sub_file.close()
         else:
