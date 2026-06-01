@@ -131,3 +131,8 @@ dmypy.json
 # IDE folders
 .vscode
 .idea
+
+# Sensitive Information
+leetcode_cookies.txt
+problem_cache.json
+*.session

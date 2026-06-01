@@ -30,6 +30,10 @@ Before running the script, make sure that python3 is installed in your system.
 If you prefer, you can use the Docker image to download LeetCode submissions. For more information read the
 section [Docker Image](#docker-image).
 
+### ✨ New Features Added
+- **API Resilience**: Added retry logic with exponential backoff for GraphQL queries and submission requests to prevent crashes on network timeouts or rate limits.
+- **Topic Tags Export**: Problems now extract and expose `topicTags` for categorizing solutions by LeetCode topics.
+
 ## 🏁 Getting started <a name="getting-started"></a>
 
 ### Download `leetcode-export`
@@ -223,6 +227,56 @@ extension: str
 
 Default submission filename
 template: `${date_formatted} - ${status_display} - runtime ${runtime} - memory ${memory}.${extension}`
+
+
+## 🚀 Full Automation: Daily GitHub Sync
+
+You can fully automate your LeetCode backup to a separate GitHub repository using **GitHub Actions** and the provided **Chrome Extension**.
+
+### 1. Create your Solutions Repository
+1. Create a new private GitHub repository (e.g., `LeetCode-Solutions`).
+2. Create a file `.github/workflows/sync.yml` with the following content:
+
+```yaml
+name: Daily LeetCode Sync
+on:
+  schedule:
+    - cron: "0 */8 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: |
+          pip install git+https://github.com/MohamedMousad/leetcode-export.git@feature/api-retry-and-tags
+      - env:
+          LEETCODE_COOKIE: ${{ secrets.LEETCODE_COOKIE }}
+        run: |
+          python -m leetcode_export --folder .
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-sync: Daily update" || echo "No changes"
+          git push origin main
+```
+
+### 2. Set Up the Chrome Extension
+Because LeetCode cookies change, we provide a Chrome Extension that automatically syncs your active session cookie to your GitHub repository securely as a secret.
+1. Generate a **GitHub Personal Access Token (Classic)** with `repo` and `workflow` permissions.
+2. Open Chrome and navigate to `chrome://extensions/`.
+3. Enable **Developer mode** (top right corner).
+4. Click **Load unpacked** and select the `chrome-extension` folder found in this repository.
+5. Click the extension icon in your browser toolbar, paste your PAT and repository name (e.g., `YourUser/LeetCode-Solutions`), and click **Save**.
+6. Whenever you log into LeetCode, click **Push Cookie to GitHub Now** in the extension to automatically securely update the `LEETCODE_COOKIE` secret in your repository. 
+
+Your GitHub action will now run seamlessly every day!
 
 ## Special mentions
 

@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Auto-Sync",
+  "version": "1.0",
+  "description": "Automatically keeps your LeetCode cookies updated as a GitHub Action Secret.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://api.github.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

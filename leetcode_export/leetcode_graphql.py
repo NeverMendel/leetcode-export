@@ -14,6 +14,7 @@ class Problem:
     title: str
     title_slug: str
     content: str
+    topic_tags: list
 
 
 def question_detail_json(slug):
@@ -28,6 +29,10 @@ def question_detail_json(slug):
                 title
                 titleSlug
                 content
+                topicTags {
+                    name
+                    slug
+                }
             }
         }""",
     }

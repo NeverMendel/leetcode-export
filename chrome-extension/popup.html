@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 320px; padding: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    h3 { margin-top: 0; color: #333; }
+    label { font-size: 12px; font-weight: bold; color: #555; }
+    input, button { width: 100%; margin-bottom: 15px; padding: 8px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
+    button { background-color: #2ea44f; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #2c974b; }
+    #sync { background-color: #0366d6; margin-top: 10px; }
+    #sync:hover { background-color: #005cc5; }
+    #status { font-size: 13px; color: #555; font-weight: bold; text-align: center; }
+  </style>
+</head>
+<body>
+  <h3>LeetCode Auto-Sync</h3>
+  
+  <label>GitHub Personal Access Token (repo scope):</label>
+  <input type="password" id="pat" placeholder="ghp_xxxxxxxx...">
+  
+  <label>Repository (owner/repo):</label>
+  <input type="text" id="repo" placeholder="MohamedMousad/LeetCode-Solutions">
+  
+  <button id="save">Save Settings</button>
+  <button id="sync">Push Cookie to GitHub Now</button>
+  
+  <p id="status"></p>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

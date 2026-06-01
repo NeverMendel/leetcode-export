@@ -124,12 +124,19 @@ class LeetCode(object):
         :param slug: problem identifier
         :return: Problem
         """
-        response = self.session.post(GRAPHQL_URL, json=question_detail_json(slug))
-        if "data" in response.json() and "question" in response.json()["data"]:
-            problem_dict = dict_camelcase_to_snakecase(
-                response.json()["data"]["question"]
-            )
-            return Problem.from_dict(problem_dict)
+        for attempt in range(5):
+            try:
+                response = self.session.post(GRAPHQL_URL, json=question_detail_json(slug), timeout=20)
+                if "data" in response.json() and "question" in response.json()["data"]:
+                    problem_dict = dict_camelcase_to_snakecase(
+                        response.json()["data"]["question"]
+                    )
+                    return Problem.from_dict(problem_dict)
+                break
+            except requests.exceptions.RequestException as e:
+                logging.warning(f"GraphQL request failed: {e}. Retrying in {5 * (attempt + 1)} seconds...")
+                sleep(5 * (attempt + 1))
+        return None
 
     def get_submissions(self) -> Iterator[Submission]:
         """
@@ -148,9 +155,18 @@ class LeetCode(object):
             and response_json["has_next"]
         ):
             logging.debug(f"Exporting submissions from {current} to {current + 20}")
-            response = self.session.get(SUBMISSIONS_API_URL.format(current, 20))
-            logging.debug(response.content)
-            response_json = response.json()
+            for attempt in range(5):
+                try:
+                    response = self.session.get(SUBMISSIONS_API_URL.format(current, 20), timeout=20)
+                    logging.debug(response.content)
+                    response_json = response.json()
+                    break
+                except requests.exceptions.RequestException as e:
+                    logging.warning(f"Request failed: {e}. Retrying in {5 * (attempt + 1)} seconds...")
+                    sleep(5 * (attempt + 1))
+            else:
+                logging.error("Max retries exceeded for fetching submissions.")
+                break
             if "submissions_dump" in response_json:
                 for submission_dict in response_json["submissions_dump"]:
                     submission_dict["runtime"] = submission_dict["runtime"].replace(
