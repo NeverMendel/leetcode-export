@@ -22,7 +22,7 @@ def question_detail_json(slug):
         "variables": {"titleSlug": slug},
         "query": """query getQuestionDetail($titleSlug: String!) {
             question(titleSlug: $titleSlug) {
-                questionId
+                questionId: questionFrontendId
                 difficulty
                 stats
                 title
