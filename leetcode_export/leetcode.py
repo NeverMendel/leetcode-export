@@ -5,7 +5,7 @@ LeetCode Python APIs for retrieving submitted problems and problem statements.
 import datetime
 import logging
 from time import sleep
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Optional
 
 import requests
 
@@ -131,9 +131,10 @@ class LeetCode(object):
             )
             return Problem.from_dict(problem_dict)
 
-    def get_submissions(self) -> Iterator[Submission]:
+    def get_submissions(self, since_timestamp: Optional[int] = None) -> Iterator[Submission]:
         """
         Get submissions for logged user
+        :param since_timestamp: Only return submissions newer than this Unix timestamp
         :return: Iterator[Submission], LeetCode submission
         """
         if not self.is_user_logged():
@@ -152,7 +153,14 @@ class LeetCode(object):
             logging.debug(response.content)
             response_json = response.json()
             if "submissions_dump" in response_json:
+                found_older_submission = False
                 for submission_dict in response_json["submissions_dump"]:
+                    # Check if this submission is older than our checkpoint
+                    if since_timestamp is not None and submission_dict["timestamp"] <= since_timestamp:
+                        logging.info(f"Reached submissions older than checkpoint timestamp {since_timestamp}, stopping")
+                        found_older_submission = True
+                        break
+
                     submission_dict["runtime"] = submission_dict["runtime"].replace(
                         " ", ""
                     )
@@ -176,6 +184,10 @@ class LeetCode(object):
                             )
                     submission = Submission.from_dict(submission_dict)
                     yield submission
+
+                # If we found an older submission, stop pagination
+                if found_older_submission:
+                    break
 
             current += 20
             sleep(5)  # cooldown time for get request
